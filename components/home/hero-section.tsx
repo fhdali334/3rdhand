@@ -6,7 +6,7 @@ export function HeroSection() {
     <section className="relative py-20 md:py-32 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 z-0" />
       <div
-        className="absolute inset-0 z-0 opacity-50"
+        className="absolute inset-0 z-0 opacity-30"
         style={{
           backgroundImage: "url('/images/hero-bg.jpeg')",
           backgroundSize: "cover",
