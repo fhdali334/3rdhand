@@ -42,7 +42,7 @@ export const authApi = {
 
   // Reset password with token from URL
   resetPassword: (token: string, data: ResetPasswordRequest): Promise<ApiResponse<AuthResponse>> =>
-    apiClient.patch(`/api/auth/reset-password/${token}`, data),
+    apiClient.post(`/api/auth/reset-password/${token}`, data),
 
   // Update password (for logged in users)
   updatePassword: (data: UpdatePasswordRequest): Promise<ApiResponse<AuthResponse>> =>
