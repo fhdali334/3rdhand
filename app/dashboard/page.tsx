@@ -34,19 +34,19 @@ export default function DashboardPage() {
     <>
       <Header />
       <div className="container py-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 sm:mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Welcome back, {currentUser.username}!</h1>
-            <p className="text-muted-foreground">Manage your artwork and track your sales</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">Welcome back, {currentUser.username}!</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Manage your artwork and track your sales</p>
           </div>
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link href="/create-listing">
               <Plus className="mr-2 h-4 w-4" /> Create New Listing
             </Link>
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Active Listings</CardTitle>
@@ -94,16 +94,26 @@ export default function DashboardPage() {
         </div>
 
         <Tabs defaultValue="listings" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="listings">My Listings</TabsTrigger>
-            <TabsTrigger value="messages">Messages ({unreadMessages.length})</TabsTrigger>
-            <TabsTrigger value="sales">Sales History</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+            <TabsTrigger value="listings" className="text-xs sm:text-sm">
+              My Listings
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="text-xs sm:text-sm">
+              Messages ({unreadMessages.length})
+            </TabsTrigger>
+            <TabsTrigger value="sales" className="text-xs sm:text-sm">
+              Sales History
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm">
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="text-xs sm:text-sm">
+              Profile
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="listings" className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {userArtworks.map((artwork) => (
                 <div key={artwork._id} className="relative">
                   <ArtworkCard

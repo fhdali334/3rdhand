@@ -71,65 +71,67 @@ export default function BrowsePage() {
     <>
       <Header />
       <div className="container py-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 sm:mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Browse Artwork</h1>
-            <p className="text-muted-foreground">Discover unique pieces from talented artists</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">Browse Artwork</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Discover unique pieces from talented artists</p>
           </div>
-          <div className="text-sm text-muted-foreground mt-2 md:mt-0">{filteredArtworks.length} artworks found</div>
+          <div className="text-sm text-muted-foreground">{filteredArtworks.length} artworks found</div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col xl:flex-row gap-6 lg:gap-8">
           {/* Filters sidebar */}
-          <div className="w-full lg:w-64 space-y-6">
-            <div>
-              <h3 className="font-medium mb-3">Search</h3>
-              <Input
-                placeholder="Search artwork..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <h3 className="font-medium mb-3">Medium</h3>
-              <div className="space-y-2">
-                {categories.map((category:any) => (
-                  <div key={category} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`category-${category}`}
-                      checked={selectedCategories.includes(category)}
-                      onCheckedChange={(checked) => handleCategoryChange(category, checked as boolean)}
-                    />
-                    <Label htmlFor={`category-${category}`}>{category}</Label>
-                  </div>
-                ))}
+          <div className="w-full xl:w-64 space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-4 xl:space-y-6 xl:gap-0">
+              <div>
+                <h3 className="font-medium mb-3 text-sm sm:text-base">Search</h3>
+                <Input
+                  placeholder="Search artwork..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
-            </div>
 
-            <div>
-              <h3 className="font-medium mb-3">Price Range</h3>
-              <div className="space-y-4">
-                <Slider value={priceRange} onValueChange={setPriceRange} min={0} max={1000} step={10} />
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">€{priceRange[0]}</span>
-                  <span className="text-sm">€{priceRange[1]}+</span>
+              <div>
+                <h3 className="font-medium mb-3 text-sm sm:text-base">Medium</h3>
+                <div className="space-y-2">
+                  {categories.map((category) => (
+                    <div key={category} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`category-${category}`}
+                        checked={selectedCategories.includes(category)}
+                        onCheckedChange={(checked) => handleCategoryChange(category, checked as boolean)}
+                      />
+                      <Label htmlFor={`category-${category}`}>{category}</Label>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
 
-            <div>
-              <h3 className="font-medium mb-3">Sort By</h3>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                </SelectContent>
-              </Select>
+              <div>
+                <h3 className="font-medium mb-3 text-sm sm:text-base">Price Range</h3>
+                <div className="space-y-4">
+                  <Slider value={priceRange} onValueChange={setPriceRange} min={0} max={1000} step={10} />
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">€{priceRange[0]}</span>
+                    <span className="text-sm">€{priceRange[1]}+</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-medium mb-3 text-sm sm:text-base">Sort By</h3>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Newest</SelectItem>
+                    <SelectItem value="price-low">Price: Low to High</SelectItem>
+                    <SelectItem value="price-high">Price: High to Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <Button
@@ -150,7 +152,7 @@ export default function BrowsePage() {
           <div className="flex-1">
             {filteredArtworks.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6">
                   {filteredArtworks.map((artwork) => {
                     const artist = getUserById(artwork.artist)
                     return (

@@ -42,14 +42,14 @@ export default function AdminDashboardPage() {
     <>
       <Header />
       <div className="container py-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Manage the 3rdHand art marketplace</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">Admin Dashboard</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Manage the 3rdHand art marketplace</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -95,12 +95,22 @@ export default function AdminDashboardPage() {
         </div>
 
         <Tabs defaultValue="pending" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="pending">Pending Approvals ({stats.pendingApprovals})</TabsTrigger>
-            <TabsTrigger value="users">User Management</TabsTrigger>
-            <TabsTrigger value="listings">All Listings</TabsTrigger>
-            <TabsTrigger value="transactions">Transactions</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+            <TabsTrigger value="pending" className="text-xs sm:text-sm">
+              Pending ({stats.pendingApprovals})
+            </TabsTrigger>
+            <TabsTrigger value="users" className="text-xs sm:text-sm">
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="listings" className="text-xs sm:text-sm">
+              Listings
+            </TabsTrigger>
+            <TabsTrigger value="transactions" className="text-xs sm:text-sm">
+              Transactions
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm">
+              Analytics
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="pending">
@@ -111,68 +121,70 @@ export default function AdminDashboardPage() {
               </CardHeader>
               <CardContent>
                 {pendingArtworks.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Artwork</TableHead>
-                        <TableHead>Artist</TableHead>
-                        <TableHead>Price</TableHead>
-                        <TableHead>Submitted</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {pendingArtworks.map((artwork) => {
-                        const artist = getUserById(artwork.artist)
-                        return (
-                          <TableRow key={artwork._id}>
-                            <TableCell>
-                              <div className="flex items-center space-x-3">
-                                <img
-                                  src={artwork.images[0] || "/placeholder.svg"}
-                                  alt={artwork.title}
-                                  className="w-12 h-12 object-cover rounded"
-                                />
-                                <div>
-                                  <p className="font-medium">{artwork.title}</p>
-                                  <p className="text-sm text-muted-foreground">{artwork.medium}</p>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Artwork</TableHead>
+                          <TableHead>Artist</TableHead>
+                          <TableHead>Price</TableHead>
+                          <TableHead>Submitted</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {pendingArtworks.map((artwork) => {
+                          const artist = getUserById(artwork.artist)
+                          return (
+                            <TableRow key={artwork._id}>
+                              <TableCell>
+                                <div className="flex items-center space-x-3">
+                                  <img
+                                    src={artwork.images[0] || "/placeholder.svg"}
+                                    alt={artwork.title}
+                                    className="w-12 h-12 object-cover rounded"
+                                  />
+                                  <div>
+                                    <p className="font-medium">{artwork.title}</p>
+                                    <p className="text-sm text-muted-foreground">{artwork.medium}</p>
+                                  </div>
                                 </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>{artist?.username}</TableCell>
-                            <TableCell>€{artwork.price}</TableCell>
-                            <TableCell>{new Date(artwork.createdAt).toLocaleDateString()}</TableCell>
-                            <TableCell>
-                              <div className="flex space-x-2">
-                                <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                                  <Eye className="h-4 w-4" />
-                                  <span className="sr-only">View</span>
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="h-8 w-8 p-0 text-green-500 hover:text-green-600"
-                                  onClick={() => handleApproveArtwork(artwork._id)}
-                                >
-                                  <CheckCircle className="h-4 w-4" />
-                                  <span className="sr-only">Approve</span>
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
-                                  onClick={() => handleRejectArtwork(artwork._id)}
-                                >
-                                  <XCircle className="h-4 w-4" />
-                                  <span className="sr-only">Reject</span>
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        )
-                      })}
-                    </TableBody>
-                  </Table>
+                              </TableCell>
+                              <TableCell>{artist?.username}</TableCell>
+                              <TableCell>€{artwork.price}</TableCell>
+                              <TableCell>{new Date(artwork.createdAt).toLocaleDateString()}</TableCell>
+                              <TableCell>
+                                <div className="flex space-x-2">
+                                  <Button size="sm" variant="outline" className="h-8 w-8 p-0">
+                                    <Eye className="h-4 w-4" />
+                                    <span className="sr-only">View</span>
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-8 w-8 p-0 text-green-500 hover:text-green-600"
+                                    onClick={() => handleApproveArtwork(artwork._id)}
+                                  >
+                                    <CheckCircle className="h-4 w-4" />
+                                    <span className="sr-only">Approve</span>
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
+                                    onClick={() => handleRejectArtwork(artwork._id)}
+                                  >
+                                    <XCircle className="h-4 w-4" />
+                                    <span className="sr-only">Reject</span>
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
                 ) : (
                   <div className="text-center py-8">
                     <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
@@ -191,47 +203,49 @@ export default function AdminDashboardPage() {
                 <CardDescription>Manage user accounts and permissions.</CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Joined</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockUsers
-                      .filter((u) => u.role !== "admin")
-                      .map((user) => (
-                        <TableRow key={user._id}>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">{user.username}</p>
-                              <p className="text-sm text-muted-foreground">{user.profile.bio?.substring(0, 50)}...</p>
-                            </div>
-                          </TableCell>
-                          <TableCell>{user.email}</TableCell>
-                          <TableCell>
-                            <Badge variant={user.role === "artist" ? "default" : "secondary"}>{user.role}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={user.isVerified ? "default" : "secondary"}>
-                              {user.isVerified ? "Verified" : "Unverified"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
-                          <TableCell>
-                            <Button size="sm" variant="outline">
-                              View Profile
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Joined</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {mockUsers
+                        .filter((u) => u.role !== "admin")
+                        .map((user) => (
+                          <TableRow key={user._id}>
+                            <TableCell>
+                              <div>
+                                <p className="font-medium">{user.username}</p>
+                                <p className="text-sm text-muted-foreground">{user.profile.bio?.substring(0, 50)}...</p>
+                              </div>
+                            </TableCell>
+                            <TableCell>{user.email}</TableCell>
+                            <TableCell>
+                              <Badge variant={user.role === "artist" ? "default" : "secondary"}>{user.role}</Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={user.isVerified ? "default" : "secondary"}>
+                                {user.isVerified ? "Verified" : "Unverified"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                            <TableCell>
+                              <Button size="sm" variant="outline">
+                                View Profile
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -243,61 +257,63 @@ export default function AdminDashboardPage() {
                 <CardDescription>View and manage all artwork listings on the platform.</CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Artwork</TableHead>
-                      <TableHead>Artist</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockArtworks.map((artwork) => {
-                      const artist = getUserById(artwork.artist)
-                      return (
-                        <TableRow key={artwork._id}>
-                          <TableCell>
-                            <div className="flex items-center space-x-3">
-                              <img
-                                src={artwork.images[0] || "/placeholder.svg"}
-                                alt={artwork.title}
-                                className="w-12 h-12 object-cover rounded"
-                              />
-                              <div>
-                                <p className="font-medium">{artwork.title}</p>
-                                <p className="text-sm text-muted-foreground">{artwork.medium}</p>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Artwork</TableHead>
+                        <TableHead>Artist</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {mockArtworks.map((artwork) => {
+                        const artist = getUserById(artwork.artist)
+                        return (
+                          <TableRow key={artwork._id}>
+                            <TableCell>
+                              <div className="flex items-center space-x-3">
+                                <img
+                                  src={artwork.images[0] || "/placeholder.svg"}
+                                  alt={artwork.title}
+                                  className="w-12 h-12 object-cover rounded"
+                                />
+                                <div>
+                                  <p className="font-medium">{artwork.title}</p>
+                                  <p className="text-sm text-muted-foreground">{artwork.medium}</p>
+                                </div>
                               </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>{artist?.username}</TableCell>
-                          <TableCell>€{artwork.price}</TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={
-                                artwork.status === "approved"
-                                  ? "default"
-                                  : artwork.status === "pending"
-                                    ? "secondary"
-                                    : "destructive"
-                              }
-                            >
-                              {artwork.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{new Date(artwork.createdAt).toLocaleDateString()}</TableCell>
-                          <TableCell>
-                            <Button size="sm" variant="outline">
-                              View Details
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      )
-                    })}
-                  </TableBody>
-                </Table>
+                            </TableCell>
+                            <TableCell>{artist?.username}</TableCell>
+                            <TableCell>€{artwork.price}</TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  artwork.status === "approved"
+                                    ? "default"
+                                    : artwork.status === "pending"
+                                      ? "secondary"
+                                      : "destructive"
+                                }
+                              >
+                                {artwork.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{new Date(artwork.createdAt).toLocaleDateString()}</TableCell>
+                            <TableCell>
+                              <Button size="sm" variant="outline">
+                                View Details
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -309,49 +325,51 @@ export default function AdminDashboardPage() {
                 <CardDescription>View all platform transactions and payments.</CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Transaction ID</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Date</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockTransactions.map((transaction) => {
-                      const user = getUserById(transaction.seller)
-                      return (
-                        <TableRow key={transaction._id}>
-                          <TableCell className="font-mono text-sm">{transaction._id}</TableCell>
-                          <TableCell>
-                            <Badge variant={transaction.transactionType === "listing_fee" ? "secondary" : "default"}>
-                              {transaction.transactionType.replace("_", " ")}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{user?.username}</TableCell>
-                          <TableCell>€{transaction.amount / 100}</TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={
-                                transaction.status === "completed"
-                                  ? "default"
-                                  : transaction.status === "pending"
-                                    ? "secondary"
-                                    : "destructive"
-                              }
-                            >
-                              {transaction.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{new Date(transaction.timestamp).toLocaleDateString()}</TableCell>
-                        </TableRow>
-                      )
-                    })}
-                  </TableBody>
-                </Table>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Transaction ID</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>User</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {mockTransactions.map((transaction) => {
+                        const user = getUserById(transaction.seller)
+                        return (
+                          <TableRow key={transaction._id}>
+                            <TableCell className="font-mono text-sm">{transaction._id}</TableCell>
+                            <TableCell>
+                              <Badge variant={transaction.transactionType === "listing_fee" ? "secondary" : "default"}>
+                                {transaction.transactionType.replace("_", " ")}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{user?.username}</TableCell>
+                            <TableCell>€{transaction.amount / 100}</TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  transaction.status === "completed"
+                                    ? "default"
+                                    : transaction.status === "pending"
+                                      ? "secondary"
+                                      : "destructive"
+                                }
+                              >
+                                {transaction.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{new Date(transaction.timestamp).toLocaleDateString()}</TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

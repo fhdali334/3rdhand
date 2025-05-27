@@ -40,14 +40,14 @@ export default function ArtworkDetailPage({ params }: { params: { id: string } }
     <>
       <Header />
       <div className="container py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Artwork image */}
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <div className="relative aspect-[3/4] overflow-hidden rounded-lg">
               <Image src={artwork.images[0] || "/placeholder.svg"} alt={artwork.title} fill className="object-cover" />
             </div>
             {artwork.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-1 sm:gap-2">
                 {artwork.images.slice(1, 5).map((image, index) => (
                   <div key={index} className="relative aspect-square overflow-hidden rounded">
                     <Image
@@ -63,11 +63,11 @@ export default function ArtworkDetailPage({ params }: { params: { id: string } }
           </div>
 
           {/* Artwork details */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Badge className="mb-2">{artwork.medium || "Art"}</Badge>
-                <div className="flex items-center text-sm text-muted-foreground">
+                <Badge className="mb-2 text-xs sm:text-sm">{artwork.medium || "Art"}</Badge>
+                <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
                   <Eye className="h-4 w-4 mr-1" />
                   {viewCount} views
                 </div>
@@ -96,7 +96,7 @@ export default function ArtworkDetailPage({ params }: { params: { id: string } }
               <p className="text-muted-foreground mb-6">{artwork.description}</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <p className="text-sm text-muted-foreground">Dimensions</p>
                 <p>
@@ -127,8 +127,8 @@ export default function ArtworkDetailPage({ params }: { params: { id: string } }
               )}
             </div>
 
-            <div className="flex flex-col space-y-4">
-              <Button size="lg" disabled={artwork.soldAt !== undefined}>
+            <div className="flex flex-col space-y-3 sm:space-y-4">
+              <Button size="lg" className="text-sm sm:text-base" disabled={artwork.soldAt !== undefined}>
                 {artwork.soldAt ? "Sold" : "Contact Artist"}
               </Button>
               <div className="flex space-x-2">
@@ -162,12 +162,20 @@ export default function ArtworkDetailPage({ params }: { params: { id: string } }
           </div>
         </div>
 
-        <Tabs defaultValue="details" className="mt-12">
-          <TabsList className="mb-4">
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="artist">About the Artist</TabsTrigger>
-            <TabsTrigger value="traceability">Traceability</TabsTrigger>
-            <TabsTrigger value="shipping">Shipping</TabsTrigger>
+        <Tabs defaultValue="details" className="mt-8 sm:mt-12">
+          <TabsList className="mb-4 grid w-full grid-cols-2 sm:grid-cols-4">
+            <TabsTrigger value="details" className="text-xs sm:text-sm">
+              Details
+            </TabsTrigger>
+            <TabsTrigger value="artist" className="text-xs sm:text-sm">
+              Artist
+            </TabsTrigger>
+            <TabsTrigger value="traceability" className="text-xs sm:text-sm">
+              Traceability
+            </TabsTrigger>
+            <TabsTrigger value="shipping" className="text-xs sm:text-sm">
+              Shipping
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="details" className="space-y-4">
             <h3 className="text-xl font-medium">Artwork Details</h3>

@@ -12,9 +12,9 @@ export default function CreateListingPage() {
   return (
     <>
       <Header />
-      <div className="container py-8">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8">Create a New Listing</h1>
+      <div className="container py-6 sm:py-8 px-4">
+        <div className="max-w-2xl lg:max-w-3xl mx-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Create a New Listing</h1>
 
           <Card>
             <CardHeader>
@@ -36,7 +36,7 @@ export default function CreateListingPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
                   <Select>
@@ -60,7 +60,7 @@ export default function CreateListingPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="width">Width (cm)</Label>
                   <Input id="width" type="number" min="1" placeholder="Width" />
@@ -77,7 +77,7 @@ export default function CreateListingPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="medium">Medium</Label>
                   <Input id="medium" placeholder="E.g., Oil on canvas, Digital print" />
@@ -91,7 +91,7 @@ export default function CreateListingPage() {
 
               <div className="space-y-2">
                 <Label>Upload Images</Label>
-                <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                <div className="border-2 border-dashed rounded-lg p-6 sm:p-8 text-center">
                   <div className="flex flex-col items-center">
                     <Upload className="h-10 w-10 text-muted-foreground mb-4" />
                     <p className="mb-2 font-medium">Drag and drop your images here</p>

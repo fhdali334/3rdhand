@@ -7,13 +7,13 @@ export function Footer() {
   return (
     <footer className="bg-background border-t">
       <div className="container py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           <div className="space-y-4">
             <h3 className="text-lg font-bold">3rdHand</h3>
             <p className="text-sm text-muted-foreground">
               A marketplace for artists to sell their artwork directly to buyers.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex space-x-2 sm:space-x-4">
               <Button variant="ghost" size="icon" asChild>
                 <a href="https://facebook.com" target="_blank" rel="noreferrer">
                   <Facebook className="h-5 w-5" />
@@ -82,9 +82,9 @@ export function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-4">Newsletter</h3>
             <p className="text-sm text-muted-foreground mb-4">Subscribe to our newsletter for the latest updates.</p>
-            <form className="space-y-2">
-              <Input type="email" placeholder="Your email" />
-              <Button type="submit" className="w-full">
+            <form className="space-y-2 sm:space-y-3">
+              <Input type="email" placeholder="Your email" className="text-sm" />
+              <Button type="submit" className="w-full text-sm">
                 Subscribe
               </Button>
             </form>
