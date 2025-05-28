@@ -24,30 +24,6 @@ const initialState: AuthState = {
   registrationData: null,
 }
 
-// Load initial state from localStorage if available
-const loadInitialState = (): AuthState => {
-  if (typeof window !== "undefined") {
-    try {
-      const token = localStorage.getItem("auth_token")
-      const refreshToken = localStorage.getItem("refresh_token")
-      const user = localStorage.getItem("user")
-
-      if (token && user) {
-        return {
-          ...initialState,
-          token,
-          refreshToken,
-          user: JSON.parse(user),
-          isAuthenticated: true,
-        }
-      }
-    } catch (error) {
-      console.error("Error loading auth state from localStorage:", error)
-    }
-  }
-  return initialState
-}
-
 // Async thunks
 export const registerUser = createAsyncThunk(
   "auth/register",
@@ -176,7 +152,7 @@ export const logoutUser = createAsyncThunk("auth/logout", async (_, { rejectWith
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: loadInitialState(),
+  initialState,
   reducers: {
     clearError: (state) => {
       state.error = null
@@ -190,11 +166,6 @@ const authSlice = createSlice({
       state.isVerificationRequired = false
       state.verificationEmail = null
       state.registrationData = null
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("auth_token")
-        localStorage.removeItem("refresh_token")
-        localStorage.removeItem("user")
-      }
     },
     clearVerificationState: (state) => {
       state.isVerificationRequired = false
@@ -209,9 +180,6 @@ const authSlice = createSlice({
     updateUserProfile: (state, action) => {
       if (state.user) {
         state.user = { ...state.user, ...action.payload }
-        if (typeof window !== "undefined") {
-          localStorage.setItem("user", JSON.stringify(state.user))
-        }
       }
     },
   },
@@ -250,12 +218,6 @@ const authSlice = createSlice({
         state.verificationEmail = null
         state.registrationData = null
         state.error = null
-
-        if (typeof window !== "undefined") {
-          localStorage.setItem("auth_token", token)
-          localStorage.setItem("refresh_token", refreshToken)
-          localStorage.setItem("user", JSON.stringify(user))
-        }
       })
       .addCase(verifyOtp.rejected, (state, action) => {
         state.isLoading = false
@@ -289,12 +251,6 @@ const authSlice = createSlice({
         state.user = user
         state.isAuthenticated = true
         state.error = null
-
-        if (typeof window !== "undefined") {
-          localStorage.setItem("auth_token", token)
-          localStorage.setItem("refresh_token", refreshToken)
-          localStorage.setItem("user", JSON.stringify(user))
-        }
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false
@@ -310,15 +266,10 @@ const authSlice = createSlice({
         state.user = action.payload.user
         state.isAuthenticated = true
         state.error = null
-
-        if (typeof window !== "undefined") {
-          localStorage.setItem("user", JSON.stringify(action.payload.user))
-        }
       })
       .addCase(getCurrentUser.rejected, (state, action) => {
         state.isLoading = false
         state.error = action.payload as string
-        // Don't clear auth state on getCurrentUser failure - token might still be valid
       })
 
       // Update Profile
@@ -330,10 +281,6 @@ const authSlice = createSlice({
         state.isLoading = false
         state.user = action.payload.user
         state.error = null
-
-        if (typeof window !== "undefined") {
-          localStorage.setItem("user", JSON.stringify(action.payload.user))
-        }
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.isLoading = false
@@ -367,12 +314,6 @@ const authSlice = createSlice({
         state.user = user
         state.isAuthenticated = true
         state.error = null
-
-        if (typeof window !== "undefined") {
-          localStorage.setItem("auth_token", token)
-          localStorage.setItem("refresh_token", refreshToken)
-          localStorage.setItem("user", JSON.stringify(user))
-        }
       })
       .addCase(resetPassword.rejected, (state, action) => {
         state.isLoading = false
@@ -390,11 +331,6 @@ const authSlice = createSlice({
         state.token = token
         state.refreshToken = refreshToken
         state.error = null
-
-        if (typeof window !== "undefined") {
-          localStorage.setItem("auth_token", token)
-          localStorage.setItem("refresh_token", refreshToken)
-        }
       })
       .addCase(updatePassword.rejected, (state, action) => {
         state.isLoading = false
@@ -415,12 +351,6 @@ const authSlice = createSlice({
         state.isVerificationRequired = false
         state.verificationEmail = null
         state.registrationData = null
-
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("auth_token")
-          localStorage.removeItem("refresh_token")
-          localStorage.removeItem("user")
-        }
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.isLoading = false
@@ -433,12 +363,6 @@ const authSlice = createSlice({
         state.isVerificationRequired = false
         state.verificationEmail = null
         state.registrationData = null
-
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("auth_token")
-          localStorage.removeItem("refresh_token")
-          localStorage.removeItem("user")
-        }
       })
   },
 })
