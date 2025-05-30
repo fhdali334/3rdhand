@@ -8,9 +8,9 @@ export function HeroSection() {
       <div
         className="absolute inset-0 z-0 opacity-30"
         style={{
-          backgroundImage: "url('/placeholder.svg?height=1080&width=1920')",
+          backgroundImage: "url('/images/hero-bg.jpeg')",
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundPosition: "top",
         }}
       />
       <div className="container relative z-10">
