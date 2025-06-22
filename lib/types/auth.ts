@@ -7,6 +7,7 @@ export interface User {
   profile?: {
     bio?: string
     website?: string
+    avatar?: string
     socialLinks?: {
       facebook?: string
       twitter?: string

@@ -1,60 +1,314 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
-import { Heart, MessageCircle, Share2, Eye } from "lucide-react"
+import {
+  Heart,
+  MessageCircle,
+  Share2,
+  Eye,
+  Loader2,
+  ShoppingCart,
+  ArrowLeft,
+  AlertCircle,
+  ExternalLink,
+  Wifi,
+  WifiOff,
+} from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { mockArtworks, getUserById, getArtistProfileByUserId, mockTraceabilityRecords } from "@/lib/mock-data"
-import { notFound } from "next/navigation"
+import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux"
+import { fetchArtwork, clearCurrentArtwork } from "@/lib/store/slices/artworkSlice"
+import { useToast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
 
-export default function ArtworkDetailPage({ params }: { params: { id: string } }) {
+export default function ArtworkDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  // Unwrap params using React.use()
+  const resolvedParams = use(params)
+  const artworkId = resolvedParams.id
+
+  console.log("🎨 ArtworkDetailPage: Starting with artwork ID:", artworkId)
+
+  const dispatch = useAppDispatch()
+  const router = useRouter()
+  const { toast } = useToast()
+  const { currentArtwork, currentArtworkLoading, currentArtworkError } = useAppSelector((state) => state.artwork)
+  const { user, isAuthenticated } = useAppSelector((state) => state.auth)
+
   const [isLiked, setIsLiked] = useState(false)
-  const [viewCount, setViewCount] = useState(Math.floor(Math.random() * 100) + 50)
-
-  const artwork = mockArtworks.find((a) => a._id === params.id)
-
-  if (!artwork) {
-    notFound()
-  }
-
-  const artist = getUserById(artwork.artist)
-  const artistProfile = getArtistProfileByUserId(artwork.artist)
-  const traceabilityHistory = mockTraceabilityRecords.filter((tr) => tr.artworkId === artwork._id)
+  const [viewCount, setViewCount] = useState(0)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [retryCount, setRetryCount] = useState(0)
 
   useEffect(() => {
-    // Simulate view count increment
-    setViewCount((prev) => prev + 1)
-  }, [])
+    console.log("🔄 ArtworkDetailPage: useEffect triggered for artwork ID:", artworkId)
+    console.log(
+      "🔄 Current state - artwork:",
+      currentArtwork?._id,
+      "loading:",
+      currentArtworkLoading,
+      "error:",
+      currentArtworkError,
+    )
 
-  if (!artist) {
-    return <div>Artist not found</div>
+    if (!artworkId || artworkId.trim() === "") {
+      console.error("❌ ArtworkDetailPage: Invalid artwork ID provided")
+      return
+    }
+
+    // Only fetch if we don't have the current artwork or it's a different one
+    if (!currentArtwork || currentArtwork._id !== artworkId) {
+      console.log("🧹 ArtworkDetailPage: Clearing previous artwork data")
+      dispatch(clearCurrentArtwork())
+
+      console.log("📡 ArtworkDetailPage: Dispatching fetchArtwork for ID:", artworkId)
+      dispatch(fetchArtwork(artworkId))
+    }
+
+    // Simulate view count increment
+    setViewCount(Math.floor(Math.random() * 100) + 50)
+  }, [dispatch, artworkId, retryCount])
+
+  // Log state changes for debugging
+  useEffect(() => {
+    console.log("📊 State Update - currentArtwork:", currentArtwork?._id)
+    console.log("📊 State Update - loading:", currentArtworkLoading)
+    console.log("📊 State Update - error:", currentArtworkError)
+  }, [currentArtwork, currentArtworkLoading, currentArtworkError])
+
+  const handlePurchase = async () => {
+    console.log("💳 Purchase button clicked for artwork:", currentArtwork?._id)
+
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to purchase artwork.",
+        variant: "destructive",
+      })
+      router.push("/auth/login")
+      return
+    }
+
+    if (!currentArtwork) {
+      toast({
+        title: "Error",
+        description: "Artwork not found. Please try again.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    toast({
+      title: "Purchase Initiated",
+      description: `Purchase process started for "${currentArtwork.title}"`,
+    })
   }
+
+  const handleContactArtist = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to contact the artist.",
+        variant: "destructive",
+      })
+      router.push("/auth/login")
+      return
+    }
+
+    if (currentArtwork?.artist?._id) {
+      router.push(`/dashboard/messages?artist=${currentArtwork.artist._id}`)
+    }
+  }
+
+  const handleRetry = () => {
+    console.log("🔄 Retrying artwork fetch for ID:", artworkId)
+    setRetryCount((prev) => prev + 1)
+    dispatch(clearCurrentArtwork())
+  }
+
+  // Check if error is network-related
+  const isNetworkError = currentArtworkError?.includes("fetch") || currentArtworkError?.includes("Network")
+
+  // Loading state
+  if (currentArtworkLoading) {
+    console.log("⏳ ArtworkDetailPage: Showing loading state")
+    return (
+      <>
+        <Header />
+        <div className="container py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+              <h2 className="text-xl font-semibold mb-2">Loading Artwork Details</h2>
+              <p className="text-muted-foreground">Fetching artwork ID: {artworkId}</p>
+              <div className="mt-4 p-4 bg-muted/50 rounded-lg max-w-md mx-auto">
+                <p className="text-sm text-muted-foreground">
+                  API Call: GET /api/artwork/{artworkId}
+                  <br />
+                  Base URL: {process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    )
+  }
+
+  // Error state
+  if (currentArtworkError && !currentArtwork) {
+    console.error("❌ ArtworkDetailPage: Showing error state:", currentArtworkError)
+    return (
+      <>
+        <Header />
+        <div className="container py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center max-w-lg">
+              {isNetworkError ? (
+                <WifiOff className="h-16 w-16 text-destructive mx-auto mb-4" />
+              ) : (
+                <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-4" />
+              )}
+              <h2 className="text-2xl font-semibold mb-4">
+                {isNetworkError ? "API Connection Error" : "Error Loading Artwork"}
+              </h2>
+              <p className="text-muted-foreground mb-4">{currentArtworkError}</p>
+              <div className="bg-muted/50 p-4 rounded-lg mb-6 text-left">
+                <p className="text-sm text-muted-foreground">
+                  <strong>API Endpoint:</strong> GET /api/artwork/{artworkId}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  <strong>Base URL:</strong> {process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.3rdhand.be"}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  <strong>Full URL:</strong>{" "}
+                  {(process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.3rdhand.be") + `/api/artwork/${artworkId}`}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  <strong>Artwork ID:</strong> {artworkId}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  <strong>Retry Count:</strong> {retryCount}
+                </p>
+                {isNetworkError && (
+                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded text-red-800">
+                    <p className="text-sm font-medium mb-2">🔧 Troubleshooting Steps:</p>
+                    <ul className="text-xs space-y-1">
+                      <li>• Check if your API server is running</li>
+                      <li>• Verify the base URL in your environment variables</li>
+                      <li>• Ensure CORS is configured to allow your frontend domain</li>
+                      <li>• Test the API endpoint directly in your browser or Postman</li>
+                      <li>• Check network tab in browser dev tools for more details</li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-3 justify-center">
+                <Button onClick={handleRetry}>
+                  <Wifi className="mr-2 h-4 w-4" />
+                  Retry API Call
+                </Button>
+                <Button variant="outline" onClick={() => router.push("/browse")}>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Browse
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    )
+  }
+
+  // No artwork found state
+  if (!currentArtwork && !currentArtworkLoading && !currentArtworkError) {
+    console.log("❌ ArtworkDetailPage: No artwork found")
+    return (
+      <>
+        <Header />
+        <div className="container py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center max-w-md">
+              <h2 className="text-2xl font-semibold mb-4">Artwork Not Found</h2>
+              <p className="text-muted-foreground mb-6">The artwork with ID "{artworkId}" could not be found.</p>
+              <div className="flex gap-3 justify-center">
+                <Button onClick={handleRetry}>Try Again</Button>
+                <Button variant="outline" onClick={() => router.push("/browse")}>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Browse
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    )
+  }
+
+  console.log("✅ ArtworkDetailPage: Rendering artwork details:", currentArtwork)
+
+  // Remove the isMockData check and warning banner
+  const isOwner = user?.id === currentArtwork?.artist?._id
+  const isSold = !!currentArtwork?.soldAt
+  const artworkImages = currentArtwork?.images || ["/placeholder.svg?height=600&width=400"]
 
   return (
     <>
       <Header />
       <div className="container py-8">
+        {/* Back button */}
+        <div className="mb-6">
+          <Button variant="ghost" onClick={() => router.back()} className="mb-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-          {/* Artwork image */}
-          <div className="space-y-3 sm:space-y-4">
-            <div className="relative aspect-[3/4] overflow-hidden rounded-lg">
-              <Image src={artwork.images[0] || "/placeholder.svg"} alt={artwork.title} fill className="object-cover" />
+          {/* Artwork Images */}
+          <div className="space-y-4">
+            {/* Main Image */}
+            <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-100">
+              <Image
+                src={artworkImages[selectedImageIndex] || "/placeholder.svg?height=600&width=400"}
+                alt={currentArtwork?.title || "Artwork"}
+                fill
+                className="object-cover"
+                priority
+              />
+              {isSold && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <Badge variant="destructive" className="text-lg px-4 py-2">
+                    SOLD
+                  </Badge>
+                </div>
+              )}
             </div>
-            {artwork.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-1 sm:gap-2">
-                {artwork.images.slice(1, 5).map((image, index) => (
-                  <div key={index} className="relative aspect-square overflow-hidden rounded">
+
+            {/* Thumbnail Images */}
+            {artworkImages.length > 1 && (
+              <div className="grid grid-cols-4 gap-2">
+                {artworkImages.slice(0, 4).map((image, index) => (
+                  <div
+                    key={index}
+                    className={`relative aspect-square overflow-hidden rounded cursor-pointer border-2 transition-colors ${
+                      selectedImageIndex === index ? "border-primary" : "border-transparent"
+                    }`}
+                    onClick={() => setSelectedImageIndex(index)}
+                  >
                     <Image
-                      src={image || "/placeholder.svg"}
-                      alt={`${artwork.title} view ${index + 2}`}
+                      src={image || "/placeholder.svg?height=200&width=200"}
+                      alt={`${currentArtwork?.title} view ${index + 1}`}
                       fill
-                      className="object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                      className="object-cover hover:opacity-80 transition-opacity"
                     />
                   </div>
                 ))}
@@ -62,97 +316,126 @@ export default function ArtworkDetailPage({ params }: { params: { id: string } }
             )}
           </div>
 
-          {/* Artwork details */}
-          <div className="space-y-4 sm:space-y-6">
+          {/* Artwork Details */}
+          <div className="space-y-6">
+            {/* Header */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <Badge className="mb-2 text-xs sm:text-sm">{artwork.medium || "Art"}</Badge>
-                <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+              <div className="flex items-center justify-between mb-4">
+                <Badge className="text-sm">{currentArtwork?.medium || "Art"}</Badge>
+                <div className="flex items-center text-sm text-muted-foreground">
                   <Eye className="h-4 w-4 mr-1" />
                   {viewCount} views
                 </div>
               </div>
-              <h1 className="text-3xl font-bold mb-2">{artwork.title}</h1>
-              <div className="flex items-center mb-4">
-                <Avatar className="h-8 w-8 mr-2">
-                  <AvatarImage src="/placeholder.svg" alt={artist.username} />
+
+              <h1 className="text-3xl lg:text-4xl font-bold mb-4">{currentArtwork?.title || "Untitled"}</h1>
+
+              {/* Artist Info */}
+              <div className="flex items-center mb-6">
+                <Avatar className="h-10 w-10 mr-3">
+                  <AvatarImage src="/placeholder.svg" alt={currentArtwork?.artist?.username || "Artist"} />
                   <AvatarFallback>
-                    {artist.username
+                    {(currentArtwork?.artist?.username || "A")
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
                   </AvatarFallback>
                 </Avatar>
-                <Link href={`/artists/${artist._id}`} className="text-sm hover:underline">
-                  by {artist.username}
-                </Link>
-                {artistProfile?.verified && (
-                  <Badge variant="secondary" className="ml-2 text-xs">
-                    Verified
-                  </Badge>
-                )}
+                <div>
+                  <Link href={`/artists/${currentArtwork?.artist?._id}`} className="font-medium hover:underline">
+                    {currentArtwork?.artist?.username || "Unknown Artist"}
+                  </Link>
+                  <p className="text-sm text-muted-foreground">Artist</p>
+                </div>
               </div>
-              <p className="text-2xl font-bold mb-4">€{artwork.price}</p>
-              <p className="text-muted-foreground mb-6">{artwork.description}</p>
+
+              {/* Price */}
+              <div className="mb-6">
+                <p className="text-3xl font-bold text-primary">€{currentArtwork?.price?.toLocaleString() || "0"}</p>
+                {isSold && <p className="text-sm text-muted-foreground mt-1">This artwork has been sold</p>}
+              </div>
+
+              {/* Description */}
+              {currentArtwork?.description && (
+                <p className="text-muted-foreground mb-6 leading-relaxed">{currentArtwork.description}</p>
+              )}
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4">
+            {/* Artwork Specifications */}
+            <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
               <div>
-                <p className="text-sm text-muted-foreground">Dimensions</p>
-                <p>
-                  {artwork.dimensions.width && artwork.dimensions.height
-                    ? `${artwork.dimensions.width} x ${artwork.dimensions.height} ${artwork.dimensions.unit}`
+                <p className="text-sm font-medium text-muted-foreground">Dimensions</p>
+                <p className="font-medium">
+                  {currentArtwork?.dimensions?.width && currentArtwork?.dimensions?.height
+                    ? `${currentArtwork.dimensions.width} × ${currentArtwork.dimensions.height} ${currentArtwork.dimensions.unit || "cm"}`
                     : "Not specified"}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Medium</p>
-                <p>{artwork.medium || "Not specified"}</p>
+                <p className="text-sm font-medium text-muted-foreground">Medium</p>
+                <p className="font-medium">{currentArtwork?.medium || "Not specified"}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Year</p>
-                <p>{artwork.year || "Not specified"}</p>
+                <p className="text-sm font-medium text-muted-foreground">Year</p>
+                <p className="font-medium">{currentArtwork?.year || "Not specified"}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Type</p>
-                <p>{artwork.isOriginal ? "Original" : "Print"}</p>
+                <p className="text-sm font-medium text-muted-foreground">Type</p>
+                <p className="font-medium">{currentArtwork?.isOriginal ? "Original" : "Print"}</p>
               </div>
-              {artwork.edition && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Edition</p>
-                  <p>
-                    {artwork.edition.number} of {artwork.edition.total}
-                  </p>
-                </div>
+            </div>
+
+            {/* Edition Info (if available) */}
+            {currentArtwork?.edition && (
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm font-medium text-blue-900">Edition Information</p>
+                <p className="text-blue-800">
+                  Edition {currentArtwork.edition.number} of {currentArtwork.edition.total}
+                </p>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="space-y-4">
+              {!isOwner && !isSold && (
+                <Button size="lg" className="w-full text-lg py-6" onClick={handlePurchase}>
+                  <ShoppingCart className="mr-2 h-5 w-5" />
+                  Purchase for €{currentArtwork?.price?.toLocaleString() || "0"}
+                </Button>
               )}
-            </div>
 
-            <div className="flex flex-col space-y-3 sm:space-y-4">
-              <Button size="lg" className="text-sm sm:text-base" disabled={artwork.soldAt !== undefined}>
-                {artwork.soldAt ? "Sold" : "Contact Artist"}
-              </Button>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="icon" onClick={() => setIsLiked(!isLiked)}>
+              {isSold && (
+                <Button size="lg" className="w-full" disabled>
+                  Artwork Sold
+                </Button>
+              )}
+
+              {/* Secondary Actions */}
+              <div className="flex gap-3">
+                <Button variant="outline" size="icon" onClick={() => setIsLiked(!isLiked)} className="flex-shrink-0">
                   <Heart className={`h-5 w-5 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
-                  <span className="sr-only">Add to favorites</span>
                 </Button>
-                <Button variant="outline" size="icon">
+
+                <Button variant="outline" size="icon" className="flex-shrink-0">
                   <Share2 className="h-5 w-5" />
-                  <span className="sr-only">Share</span>
                 </Button>
-                <Button variant="outline" className="flex-1">
-                  <MessageCircle className="h-5 w-5 mr-2" />
-                  Message Artist
-                </Button>
+
+                {!isOwner && (
+                  <Button variant="outline" className="flex-1" onClick={handleContactArtist}>
+                    <MessageCircle className="h-5 w-5 mr-2" />
+                    Message Artist
+                  </Button>
+                )}
               </div>
             </div>
 
-            {artwork.tags.length > 0 && (
+            {/* Tags */}
+            {currentArtwork?.tags && currentArtwork.tags.length > 0 && (
               <div>
-                <p className="text-sm text-muted-foreground mb-2">Tags</p>
+                <p className="text-sm font-medium text-muted-foreground mb-3">Tags</p>
                 <div className="flex flex-wrap gap-2">
-                  {artwork.tags.map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-xs">
+                  {currentArtwork.tags.map((tag) => (
+                    <Badge key={tag} variant="outline">
                       {tag}
                     </Badge>
                   ))}
@@ -162,187 +445,163 @@ export default function ArtworkDetailPage({ params }: { params: { id: string } }
           </div>
         </div>
 
-        <Tabs defaultValue="details" className="mt-8 sm:mt-12">
-          <TabsList className="mb-4 grid w-full grid-cols-2 sm:grid-cols-4">
-            <TabsTrigger value="details" className="text-xs sm:text-sm">
-              Details
-            </TabsTrigger>
-            <TabsTrigger value="artist" className="text-xs sm:text-sm">
-              Artist
-            </TabsTrigger>
-            <TabsTrigger value="traceability" className="text-xs sm:text-sm">
-              Traceability
-            </TabsTrigger>
-            <TabsTrigger value="shipping" className="text-xs sm:text-sm">
-              Shipping
-            </TabsTrigger>
+        {/* Additional Information Tabs */}
+        <Tabs defaultValue="details" className="mt-12">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="artist">Artist</TabsTrigger>
+            <TabsTrigger value="shipping">Shipping</TabsTrigger>
           </TabsList>
-          <TabsContent value="details" className="space-y-4">
-            <h3 className="text-xl font-medium">Artwork Details</h3>
-            <p>{artwork.description}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <h4 className="font-medium mb-2">Specifications</h4>
-                <ul className="space-y-1 text-sm">
-                  <li>
-                    <strong>Medium:</strong> {artwork.medium}
-                  </li>
-                  <li>
-                    <strong>Dimensions:</strong>{" "}
-                    {artwork.dimensions.width && artwork.dimensions.height
-                      ? `${artwork.dimensions.width} x ${artwork.dimensions.height} ${artwork.dimensions.unit}`
-                      : "Not specified"}
-                  </li>
-                  <li>
-                    <strong>Year:</strong> {artwork.year}
-                  </li>
-                  <li>
-                    <strong>Type:</strong> {artwork.isOriginal ? "Original" : "Print"}
-                  </li>
-                  {artwork.edition && (
-                    <li>
-                      <strong>Edition:</strong> {artwork.edition.number} of {artwork.edition.total}
-                    </li>
-                  )}
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium mb-2">Condition & Authenticity</h4>
-                <p className="text-sm">
-                  This artwork comes with a certificate of authenticity signed by the artist. The piece is in excellent
-                  condition and ready for display.
-                </p>
+
+          <TabsContent value="details" className="mt-6">
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold mb-4">Artwork Details</h3>
+              <p className="mb-4">{currentArtwork?.description || "No description available."}</p>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3">Specifications</h4>
+                  <dl className="space-y-2">
+                    <div>
+                      <dt className="font-medium">Medium:</dt>
+                      <dd>{currentArtwork?.medium || "Not specified"}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Dimensions:</dt>
+                      <dd>
+                        {currentArtwork?.dimensions?.width && currentArtwork?.dimensions?.height
+                          ? `${currentArtwork.dimensions.width} × ${currentArtwork.dimensions.height} ${currentArtwork.dimensions.unit || "cm"}`
+                          : "Not specified"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Year:</dt>
+                      <dd>{currentArtwork?.year || "Not specified"}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Type:</dt>
+                      <dd>{currentArtwork?.isOriginal ? "Original artwork" : "Print"}</dd>
+                    </div>
+                    {currentArtwork?.edition && (
+                      <div>
+                        <dt className="font-medium">Edition:</dt>
+                        <dd>
+                          {currentArtwork.edition.number} of {currentArtwork.edition.total}
+                        </dd>
+                      </div>
+                    )}
+                  </dl>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-3">Condition & Authenticity</h4>
+                  <p className="text-sm text-muted-foreground">
+                    This artwork comes with a certificate of authenticity and is in excellent condition, ready for
+                    display in your collection.
+                  </p>
+                  <div className="mt-4">
+                    <p className="text-sm font-medium">
+                      Status: <Badge variant="secondary">{currentArtwork?.status}</Badge>
+                    </p>
+                    {currentArtwork?.approvedAt && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Approved: {new Date(currentArtwork.approvedAt).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </TabsContent>
-          <TabsContent value="artist" className="space-y-4">
-            <div className="flex items-center mb-4">
-              <Avatar className="h-12 w-12 mr-4">
-                <AvatarImage src="/placeholder.svg" alt={artist.username} />
-                <AvatarFallback>
-                  {artist.username
+
+          <TabsContent value="artist" className="mt-6">
+            <div className="flex items-start gap-6">
+              <Avatar className="h-16 w-16">
+                <AvatarImage src="/placeholder.svg" alt={currentArtwork?.artist?.username} />
+                <AvatarFallback className="text-lg">
+                  {(currentArtwork?.artist?.username || "A")
                     .split(" ")
                     .map((n) => n[0])
                     .join("")}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <h3 className="text-xl font-medium">{artist.username}</h3>
-                <p className="text-muted-foreground">{artistProfile?.bio || artist.profile.bio}</p>
-              </div>
-            </div>
-            {artistProfile && (
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-medium mb-2">Artist Stats</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div>
-                      <p className="text-2xl font-bold">{artistProfile.totalSales}</p>
-                      <p className="text-sm text-muted-foreground">Total Sales</p>
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">{artistProfile.rating.average.toFixed(1)}</p>
-                      <p className="text-sm text-muted-foreground">Rating ({artistProfile.rating.count} reviews)</p>
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">{artistProfile.specialties.length}</p>
-                      <p className="text-sm text-muted-foreground">Specialties</p>
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">{new Date(artistProfile.joinedAt).getFullYear()}</p>
-                      <p className="text-sm text-muted-foreground">Member Since</p>
-                    </div>
-                  </div>
-                </div>
-                {artistProfile.specialties.length > 0 && (
-                  <div>
-                    <h4 className="font-medium mb-2">Specialties</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {artistProfile.specialties.map((specialty) => (
-                        <Badge key={specialty} variant="outline">
-                          {specialty}
-                        </Badge>
-                      ))}
-                    </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold mb-2">{currentArtwork?.artist?.username || "Unknown Artist"}</h3>
+                <p className="text-muted-foreground mb-4">
+                  {currentArtwork?.artist?.profile?.bio || "No biography available."}
+                </p>
+
+                {/* Artist Links */}
+                {currentArtwork?.artist?.profile && (
+                  <div className="space-y-2 mb-4">
+                    {currentArtwork.artist.profile.website && (
+                      <a
+                        href={currentArtwork.artist.profile.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-sm text-primary hover:underline"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-1" />
+                        Website
+                      </a>
+                    )}
+                    {currentArtwork.artist.profile.socialLinks?.instagram && (
+                      <a
+                        href={currentArtwork.artist.profile.socialLinks.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-sm text-primary hover:underline ml-4"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-1" />
+                        Instagram
+                      </a>
+                    )}
+                    {currentArtwork.artist.profile.socialLinks?.twitter && (
+                      <a
+                        href={currentArtwork.artist.profile.socialLinks.twitter}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-sm text-primary hover:underline ml-4"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-1" />
+                        Twitter
+                      </a>
+                    )}
                   </div>
                 )}
+
+                <Button variant="outline" asChild>
+                  <Link href={`/artists/${currentArtwork?.artist?._id}`}>View Full Profile</Link>
+                </Button>
               </div>
-            )}
-            <Button variant="outline" asChild className="mt-4">
-              <Link href={`/artists/${artist._id}`}>View Full Artist Profile</Link>
-            </Button>
+            </div>
           </TabsContent>
-          <TabsContent value="traceability" className="space-y-4">
-            <h3 className="text-xl font-medium">Ownership History</h3>
-            <p className="text-muted-foreground">
-              Track the complete ownership history of this artwork from creation to current owner.
-            </p>
-            {traceabilityHistory.length > 0 ? (
-              <div className="space-y-4">
-                {traceabilityHistory.map((record) => {
-                  const fromUser = getUserById(record.fromUserId)
-                  const toUser = getUserById(record.toUserId)
-                  return (
-                    <div key={record._id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-medium capitalize">{record.transactionType}</h4>
-                        <span className="text-sm text-muted-foreground">
-                          {new Date(record.timestamp).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <p className="text-sm">
-                        {record.transactionType === "created"
-                          ? `Created by ${fromUser?.username}`
-                          : `Transferred from ${fromUser?.username} to ${toUser?.username}`}
-                      </p>
-                      {record.additionalData.price && (
-                        <p className="text-sm text-muted-foreground">Sale price: €{record.additionalData.price}</p>
-                      )}
-                      {record.additionalData.location && (
-                        <p className="text-sm text-muted-foreground">Location: {record.additionalData.location}</p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-2 font-mono">
-                        Transaction Hash: {record.transactionHash}
-                      </p>
-                    </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">No traceability records available for this artwork.</p>
-            )}
-          </TabsContent>
-          <TabsContent value="shipping" className="space-y-4">
-            <h3 className="text-xl font-medium">Shipping Information</h3>
-            <div className="space-y-4">
+
+          <TabsContent value="shipping" className="mt-6">
+            <div className="space-y-6">
               <div>
-                <h4 className="font-medium mb-2">Shipping Options</h4>
-                <p className="text-sm text-muted-foreground">
-                  Artwork is carefully packaged to ensure safe delivery. Shipping costs will be calculated based on your
-                  location and the size of the artwork.
+                <h4 className="font-semibold mb-3">Shipping Information</h4>
+                <p className="text-muted-foreground mb-4">
+                  All artworks are carefully packaged and insured for safe delivery.
                 </p>
               </div>
-              <div>
-                <h4 className="font-medium mb-2">Delivery Time</h4>
-                <ul className="text-sm space-y-1">
-                  <li>• Local delivery (same city): 1-2 business days</li>
-                  <li>• National shipping: 3-5 business days</li>
-                  <li>• International shipping: 7-14 business days</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium mb-2">Packaging</h4>
-                <p className="text-sm text-muted-foreground">
-                  All artworks are professionally packaged with protective materials to ensure they arrive in perfect
-                  condition. Insurance is included for all shipments.
-                </p>
-              </div>
-              <div>
-                <h4 className="font-medium mb-2">Returns</h4>
-                <p className="text-sm text-muted-foreground">
-                  We offer a 14-day return policy for all artwork purchases. Items must be returned in their original
-                  condition and packaging.
-                </p>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h5 className="font-medium mb-2">Delivery Options</h5>
+                  <ul className="text-sm space-y-1 text-muted-foreground">
+                    <li>• Standard shipping: 5-7 business days</li>
+                    <li>• Express shipping: 2-3 business days</li>
+                    <li>• Local pickup available</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h5 className="font-medium mb-2">Returns & Exchanges</h5>
+                  <p className="text-sm text-muted-foreground">
+                    14-day return policy. Items must be returned in original condition.
+                  </p>
+                </div>
               </div>
             </div>
           </TabsContent>

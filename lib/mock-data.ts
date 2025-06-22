@@ -284,7 +284,8 @@ export const mockTraceabilityRecords: TraceabilityRecord[] = [
 ]
 
 // Helper functions to get data
-export const getUserById = (id: string): User | undefined => {
+export const getUserById = (id: string | undefined): User | undefined => {
+  if (!id) return undefined
   return mockUsers.find((user) => user._id === id)
 }
 

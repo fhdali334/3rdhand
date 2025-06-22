@@ -28,7 +28,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux"
-import { logoutUser, getCurrentUser } from "@/lib/store/slices/authSlice"
+import { logoutUser } from "@/lib/store/slices/authSlice"
 import { useToast } from "@/hooks/use-toast"
 
 const routes = [
@@ -52,18 +52,17 @@ const routes = [
 
 export function Header() {
   const [showSearch, setShowSearch] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const dispatch = useAppDispatch()
   const { toast } = useToast()
-  const { user, isAuthenticated, token } = useAppSelector((state) => state.auth)
+  const { user, isAuthenticated } = useAppSelector((state) => state.auth)
 
-  // Get current user on mount if token exists
+  // Prevent hydration mismatch
   useEffect(() => {
-    if (token && !user) {
-      dispatch(getCurrentUser())
-    }
-  }, [token, user, dispatch])
+    setMounted(true)
+  }, [])
 
   const handleLogout = async () => {
     try {
@@ -126,6 +125,40 @@ export function Header() {
     })
 
     return baseItems
+  }
+
+  // Render loading state during hydration
+  if (!mounted) {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 sm:h-16 items-center justify-between px-4">
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center space-x-2 mr-6">
+              <span className="font-bold text-xl">3rdHand</span>
+            </Link>
+            <nav className="hidden md:flex items-center gap-4 lg:gap-6">
+              {routes.map((route) => (
+                <Link
+                  key={route.href}
+                  href={route.href}
+                  className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
+                >
+                  {route.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Button variant="ghost" size="icon">
+              <Search className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <User className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </header>
+    )
   }
 
   return (

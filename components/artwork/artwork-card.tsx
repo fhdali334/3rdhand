@@ -1,3 +1,5 @@
+"use client"
+
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -6,24 +8,32 @@ import Link from "next/link"
 import Image from "next/image"
 
 interface Artwork {
-  id: string
+  _id: string
   title: string
-  artist: string
+  artist: {
+    _id: string
+    username: string
+  }
   price: number
-  image: string
-  category: string
+  images: string[]
+  medium?: string
+  isOriginal?: boolean
+  soldAt?: string
 }
 
 interface ArtworkCardProps {
   artwork: Artwork
+  showArtist?: boolean // Made optional with default
 }
 
-export function ArtworkCard({ artwork }: ArtworkCardProps) {
+export function ArtworkCard({ artwork, showArtist = true }: ArtworkCardProps) {
+  console.log("ArtworkCard: Rendering artwork with ID:", artwork._id)
+
   return (
     <Card className="overflow-hidden group hover:shadow-lg transition-shadow">
       <div className="relative aspect-[3/4] overflow-hidden">
         <Image
-          src={artwork.image || "/placeholder.svg"}
+          src={artwork.images?.[0] || "/placeholder.svg"}
           alt={artwork.title}
           fill
           className="object-cover transition-transform group-hover:scale-105"
@@ -38,14 +48,25 @@ export function ArtworkCard({ artwork }: ArtworkCardProps) {
         </Button>
       </div>
       <CardContent className="p-3 sm:p-4">
-        <Badge className="mb-2 text-xs">{artwork.category}</Badge>
+        <Badge className="mb-2 text-xs">{artwork.medium || "Art"}</Badge>
         <h3 className="font-medium mb-1 line-clamp-1 text-sm sm:text-base">{artwork.title}</h3>
-        <p className="text-xs sm:text-sm text-muted-foreground mb-2">by {artwork.artist}</p>
+        {showArtist && (
+          <p className="text-xs sm:text-sm text-muted-foreground mb-2">
+            by {artwork.artist?.username || "Unknown Artist"}
+          </p>
+        )}
         <p className="font-medium text-sm sm:text-base">€{artwork.price}</p>
       </CardContent>
       <CardFooter className="p-3 sm:p-4 pt-0">
         <Button variant="outline" className="w-full text-xs sm:text-sm" asChild>
-          <Link href={`/browse/${artwork.id}`}>View Details</Link>
+          <Link
+            href={`/browse/${artwork._id}`}
+            onClick={() => {
+              console.log("View Details clicked for artwork ID:", artwork._id)
+            }}
+          >
+            View Details
+          </Link>
         </Button>
       </CardFooter>
     </Card>

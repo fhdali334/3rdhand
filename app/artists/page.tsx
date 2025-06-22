@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -11,42 +11,57 @@ import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 import { Star, Palette } from "lucide-react"
 import Link from "next/link"
-import { mockUsers, mockArtistProfiles, getArtworksByArtist } from "@/lib/mock-data"
+import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux"
+import { fetchUsers } from "@/lib/store/slices/adminSlice" // We'll use admin slice to fetch users
 
 export default function ArtistsPage() {
+  const dispatch = useAppDispatch()
+  const { users, usersLoading, usersError } = useAppSelector((state) => state.admin)
+
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState("rating")
   const [filterBySpecialty, setFilterBySpecialty] = useState("all")
 
-  const artists = mockUsers.filter((user) => user.role === "artist")
-  const allSpecialties = Array.from(new Set(mockArtistProfiles.flatMap((profile) => profile.specialties)))
+  useEffect(() => {
+    // Fetch artists (users with role 'artist')
+    dispatch(fetchUsers({ role: "artist", limit: 50 }))
+  }, [dispatch])
+
+  const artists = users.filter((user) => user.role === "artist")
+
+  // Update specialties to work with real data
+  const allSpecialties = [
+    "Painting",
+    "Digital Art",
+    "Photography",
+    "Sculpture",
+    "Mixed Media",
+    "Abstract",
+    "Portrait",
+    "Landscape",
+  ]
 
   const filteredArtists = useMemo(() => {
     const filtered = artists.filter((artist) => {
-      const profile = mockArtistProfiles.find((p) => p.userId === artist._id)
       const matchesSearch =
         searchTerm === "" ||
         artist.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (profile?.bio && profile.bio.toLowerCase().includes(searchTerm.toLowerCase()))
+        (artist.profile?.bio && artist.profile.bio.toLowerCase().includes(searchTerm.toLowerCase()))
 
-      const matchesSpecialty =
-        filterBySpecialty === "all" || (profile?.specialties && profile.specialties.includes(filterBySpecialty))
+      const matchesSpecialty = filterBySpecialty === "all" // Simplified for now until we have proper artist profile structure
 
       return matchesSearch && matchesSpecialty
     })
 
-    // Sort artists
+    // Sort artists based on real data
     filtered.sort((a, b) => {
-      const profileA = mockArtistProfiles.find((p) => p.userId === a._id)
-      const profileB = mockArtistProfiles.find((p) => p.userId === b._id)
-
       switch (sortBy) {
         case "rating":
-          return (profileB?.rating.average || 0) - (profileA?.rating.average || 0)
+          return 0 // Will implement when artist profile structure is available
         case "sales":
-          return (profileB?.totalSales || 0) - (profileA?.totalSales || 0)
+          return 0 // Will implement when artist profile structure is available
         case "newest":
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
         case "name":
           return a.username.localeCompare(b.username)
         default:
@@ -82,7 +97,7 @@ export default function ArtistsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Specialties</SelectItem>
-              {allSpecialties.map((specialty) => (
+              {allSpecialties.map((specialty: string) => (
                 <SelectItem key={specialty} value={specialty}>
                   {specialty}
                 </SelectItem>
@@ -103,77 +118,70 @@ export default function ArtistsPage() {
         </div>
 
         {/* Artists Grid */}
-        {filteredArtists.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            {filteredArtists.map((artist) => {
-              const profile = mockArtistProfiles.find((p) => p.userId === artist._id)
-              const artworkCount = getArtworksByArtist(artist._id).length
-
-              return (
-                <Card key={artist._id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col items-center text-center">
-                      <Avatar className="h-16 w-16 sm:h-20 sm:w-20 mb-3 sm:mb-4">
-                        <AvatarImage src="/placeholder.svg" alt={artist.username} />
-                        <AvatarFallback className="text-lg">
-                          {artist.username
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-base sm:text-lg font-semibold">{artist.username}</h3>
-                        {artist.isVerified && (
-                          <Badge variant="secondary" className="text-xs">
-                            Verified
-                          </Badge>
-                        )}
-                      </div>
-
-                      <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 line-clamp-2">
-                        {profile?.bio || artist.profile.bio || "No bio available"}
-                      </p>
-
-                      {profile && (
-                        <div className="flex items-center gap-4 mb-4 text-sm">
-                          <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                            <span>{profile.rating.average.toFixed(1)}</span>
-                            <span className="text-muted-foreground">({profile.rating.count})</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Palette className="h-4 w-4 text-muted-foreground" />
-                            <span>{artworkCount} works</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {profile?.specialties && profile.specialties.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-4">
-                          {profile.specialties.slice(0, 3).map((specialty) => (
-                            <Badge key={specialty} variant="outline" className="text-xs">
-                              {specialty}
-                            </Badge>
-                          ))}
-                          {profile.specialties.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{profile.specialties.length - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
-
-                      <Button asChild className="w-full">
-                        <Link href={`/artists/${artist._id}`}>View Profile</Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
+        {usersLoading ? (
+          <div className="flex items-center justify-center py-12 col-span-full">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p>Loading artists...</p>
+            </div>
           </div>
+        ) : filteredArtists.length > 0 ? (
+          filteredArtists.map((artist) => {
+            const profile = null // Will be implemented when proper artist profile structure is available
+
+            return (
+              <Card key={artist._id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex flex-col items-center text-center">
+                    <Avatar className="h-16 w-16 sm:h-20 sm:w-20 mb-3 sm:mb-4">
+                      <AvatarImage src="/placeholder.svg" alt={artist.username} />
+                      <AvatarFallback className="text-lg">
+                        {artist.username
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-base sm:text-lg font-semibold">{artist.username}</h3>
+                      {artist.isVerified && (
+                        <Badge variant="secondary" className="text-xs">
+                          Verified
+                        </Badge>
+                      )}
+                    </div>
+
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 line-clamp-2">
+                      {artist.profile?.bio || "No bio available"}
+                    </p>
+
+                    <div className="flex items-center gap-4 mb-4 text-sm">
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span>0.0</span>
+                        <span className="text-muted-foreground">(0)</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Palette className="h-4 w-4 text-muted-foreground" />
+                        <span>0 sales</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      <Badge variant="outline" className="text-xs">
+                        Artist
+                      </Badge>
+                    </div>
+
+                    <Button asChild className="w-full">
+                      <Link href={`/artists/${artist._id}`}>View Profile</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })
         ) : (
           <div className="text-center py-12">
             <h3 className="text-lg font-medium mb-2">No artists found</h3>
