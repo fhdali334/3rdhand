@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
   if (isEmailSent) {
     return (
       <>
-        <Header />
+         
         <div className="container flex items-center justify-center min-h-[calc(100vh-64px-200px)] px-4 py-8 sm:py-12">
           <Card className="w-full max-w-sm sm:max-w-md">
             <CardHeader className="text-center">
@@ -99,14 +99,13 @@ export default function ForgotPasswordPage() {
             </CardFooter>
           </Card>
         </div>
-        <Footer />
       </>
     )
   }
 
   return (
     <>
-      <Header />
+       
       <div className="container flex items-center justify-center min-h-[calc(100vh-64px-200px)] px-4 py-8 sm:py-12">
         <Card className="w-full max-w-sm sm:max-w-md">
           <CardHeader className="space-y-1">
@@ -146,7 +145,6 @@ export default function ForgotPasswordPage() {
           </form>
         </Card>
       </div>
-      <Footer />
     </>
   )
 }

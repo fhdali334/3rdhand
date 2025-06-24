@@ -27,7 +27,7 @@ export default function ResetPasswordPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const dispatch = useAppDispatch()
-  const { isLoading, error } = useAppSelector((state:any) => state.auth)
+  const { isLoading, error } = useAppSelector((state: any) => state.auth)
 
   const {
     register,
@@ -55,7 +55,7 @@ export default function ResetPasswordPage() {
 
     try {
       dispatch(clearError())
-      const result = await dispatch(resetPassword({ token, ...data }))
+      const result = await dispatch(resetPassword({ token, data }))
 
       if (resetPassword.fulfilled.match(result)) {
         setIsSuccess(true)
@@ -75,7 +75,7 @@ export default function ResetPasswordPage() {
   if (isSuccess) {
     return (
       <>
-        <Header />
+         
         <div className="container flex items-center justify-center min-h-[calc(100vh-64px-200px)] px-4 py-8 sm:py-12">
           <Card className="w-full max-w-sm sm:max-w-md">
             <CardHeader className="text-center">
@@ -108,7 +108,7 @@ export default function ResetPasswordPage() {
   if (!token) {
     return (
       <>
-        <Header />
+         
         <div className="container flex items-center justify-center min-h-[calc(100vh-64px-200px)] px-4 py-8 sm:py-12">
           <Card className="w-full max-w-sm sm:max-w-md">
             <CardHeader className="text-center">
@@ -129,7 +129,7 @@ export default function ResetPasswordPage() {
 
   return (
     <>
-      <Header />
+       
       <div className="container flex items-center justify-center min-h-[calc(100vh-64px-200px)] px-4 py-8 sm:py-12">
         <Card className="w-full max-w-sm sm:max-w-md">
           <CardHeader className="space-y-1">
@@ -211,7 +211,6 @@ export default function ResetPasswordPage() {
           </form>
         </Card>
       </div>
-      <Footer />
     </>
   )
 }

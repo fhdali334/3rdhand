@@ -6,6 +6,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { ReduxProvider } from "@/lib/providers/redux-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { AuthInitializer } from "@/components/auth/auth-inilializer"
+import { Header } from "@/components/layout/header"
+import { Footer } from "@/components/layout/footer"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -25,7 +27,11 @@ export default function RootLayout({
         <ReduxProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
             <AuthInitializer />
-            {children}
+            <div className="min-h-screen flex flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
             <Toaster />
           </ThemeProvider>
         </ReduxProvider>

@@ -70,20 +70,19 @@ export default function PurchasesPage() {
   if (!user) {
     return (
       <>
-        <Header />
+         
         <div className="container py-8">
           <div className="text-center">
             <p>Please log in to view your purchases.</p>
           </div>
         </div>
-        <Footer />
       </>
     )
   }
 
   return (
     <>
-      <Header />
+       
       <div className="container py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
@@ -356,7 +355,6 @@ export default function PurchasesPage() {
           </TabsContent>
         </Tabs>
       </div>
-      <Footer />
     </>
   )
 }

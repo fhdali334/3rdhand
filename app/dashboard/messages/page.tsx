@@ -91,7 +91,7 @@ export default function MessagesPage() {
 
   return (
     <>
-      <Header />
+       
       <div className="container py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
@@ -270,7 +270,6 @@ export default function MessagesPage() {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   )
 }

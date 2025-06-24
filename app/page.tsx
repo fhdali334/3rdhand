@@ -9,7 +9,7 @@ import { Header } from "@/components/layout/header"
 export default function Home() {
   return (
     <main className="min-h-screen">
-      <Header />
+      
       <HeroSection />
       <FeaturedArtworks />
       <HowItWorks />
@@ -31,7 +31,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <Footer />
     </main>
   )
 }

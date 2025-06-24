@@ -7,6 +7,7 @@ import type {
   ForgotPasswordRequest,
   ResetPasswordRequest,
   VerifyOtpRequest,
+  ResendOtpRequest,
   UpdateProfileRequest,
   UpdatePasswordRequest,
 } from "@/lib/types/auth"
@@ -104,6 +105,15 @@ export const verifyOtp = createAsyncThunk("auth/verifyOtp", async (data: VerifyO
   }
 })
 
+export const resendOtp = createAsyncThunk("auth/resendOtp", async (data: ResendOtpRequest, { rejectWithValue }) => {
+  try {
+    const response = await authApi.resendOtp(data)
+    return response.message || "OTP sent successfully"
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || "Failed to resend OTP")
+  }
+})
+
 export const logoutUser = createAsyncThunk("auth/logout", async (_, { rejectWithValue }) => {
   try {
     // Clear localStorage immediately
@@ -141,7 +151,14 @@ export const resetPassword = createAsyncThunk(
   async ({ token, data }: { token: string; data: ResetPasswordRequest }, { rejectWithValue }) => {
     try {
       const response = await authApi.resetPassword(token, data)
-      return response.message || "Password reset successful"
+      if (response.data) {
+        // Store in localStorage
+        localStorage.setItem("token", response.data.token)
+        localStorage.setItem("refreshToken", response.data.refreshToken)
+        localStorage.setItem("user", JSON.stringify(response.data.user))
+        return response.data
+      }
+      return rejectWithValue(response.message || "Failed to reset password")
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to reset password")
     }
@@ -296,6 +313,20 @@ const authSlice = createSlice({
         state.error = action.payload as string
       })
 
+      // Resend OTP
+      .addCase(resendOtp.pending, (state) => {
+        state.isLoading = true
+        state.error = null
+      })
+      .addCase(resendOtp.fulfilled, (state) => {
+        state.isLoading = false
+        state.error = null
+      })
+      .addCase(resendOtp.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload as string
+      })
+
       // Logout
       .addCase(logoutUser.pending, (state) => {
         state.isLoading = true
@@ -370,8 +401,12 @@ const authSlice = createSlice({
         state.isLoading = true
         state.error = null
       })
-      .addCase(resetPassword.fulfilled, (state) => {
+      .addCase(resetPassword.fulfilled, (state, action) => {
         state.isLoading = false
+        state.user = action.payload.user
+        state.token = action.payload.token
+        state.refreshToken = action.payload.refreshToken
+        state.isAuthenticated = true
         state.error = null
       })
       .addCase(resetPassword.rejected, (state, action) => {

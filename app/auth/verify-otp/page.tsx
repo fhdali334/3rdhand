@@ -115,7 +115,7 @@ export default function VerifyOtpPage() {
 
   return (
     <>
-      <Header />
+       
       <div className="container flex items-center justify-center min-h-[calc(100vh-64px-200px)] px-4 py-8 sm:py-12">
         <Card className="w-full max-w-sm sm:max-w-md">
           <CardHeader className="text-center">
@@ -187,7 +187,6 @@ export default function VerifyOtpPage() {
           </form>
         </Card>
       </div>
-      <Footer />
     </>
   )
 }

@@ -41,10 +41,6 @@ const routes = [
     label: "Browse Art",
   },
   {
-    href: "/artists",
-    label: "Artists",
-  },
-  {
     href: "/how-it-works",
     label: "How It Works",
   },
@@ -100,6 +96,15 @@ export function Header() {
         icon: UserCircle,
       },
     ]
+
+    // Add admin dashboard for admin users
+    if (user.role === "admin") {
+      baseItems.push({
+        href: "/admin",
+        label: "Admin Dashboard",
+        icon: Settings,
+      })
+    }
 
     // Add role-specific items
     if (user.role === "artist") {

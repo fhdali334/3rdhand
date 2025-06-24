@@ -154,7 +154,7 @@ function DashboardContent() {
 
   return (
     <>
-      <Header />
+       
       <div className="container py-8">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 sm:mb-8">
           <div>

@@ -255,7 +255,7 @@ export default function CreateListingPage() {
 
   return (
     <>
-      <Header />
+       
       <div className="container py-6 sm:py-8 px-4">
         <div className="max-w-2xl lg:max-w-3xl mx-auto">
           <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Create a New Listing</h1>
@@ -497,7 +497,6 @@ export default function CreateListingPage() {
           </form>
         </div>
       </div>
-      <Footer />
     </>
   )
 }

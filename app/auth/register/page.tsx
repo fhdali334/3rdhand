@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
@@ -17,13 +17,15 @@ import { registerSchema, type RegisterFormData } from "@/lib/validations/auth"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Loader2 } from "lucide-react"
+import { Loader2, Eye, EyeOff } from "lucide-react"
 
 export default function RegisterPage() {
   const dispatch = useAppDispatch()
   const router = useRouter()
   const { toast } = useToast()
   const { isLoading, error, isAuthenticated, isVerificationRequired } = useAppSelector((state) => state.auth)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const {
     register,
@@ -74,7 +76,7 @@ export default function RegisterPage() {
 
   return (
     <>
-      <Header />
+       
       <div className="container flex items-center justify-center min-h-[calc(100vh-64px-200px)] px-4 py-8 sm:py-12">
         <Card className="w-full max-w-sm sm:max-w-md">
           <CardHeader className="space-y-1">
@@ -103,18 +105,47 @@ export default function RegisterPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" {...register("password")} placeholder="Enter your password" />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    {...register("password")}
+                    placeholder="Enter your password"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
+                  </Button>
+                </div>
                 {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  {...register("confirmPassword")}
-                  placeholder="Confirm your password"
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    {...register("confirmPassword")}
+                    placeholder="Confirm your password"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    <span className="sr-only">{showConfirmPassword ? "Hide password" : "Show password"}</span>
+                  </Button>
+                </div>
                 {errors.confirmPassword && <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>}
               </div>
 
@@ -152,7 +183,6 @@ export default function RegisterPage() {
           </form>
         </Card>
       </div>
-      <Footer />
     </>
   )
 }

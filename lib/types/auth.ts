@@ -10,18 +10,11 @@ export interface User {
     avatar?: string
     socialLinks?: {
       facebook?: string
-      twitter?: string
       instagram?: string
+      twitter?: string
     }
   }
-  credits?: number
-  createdAt?: string
-  lastActive?: string
   artistProfile?: {
-    rating: {
-      average: number
-      count: number
-    }
     _id: string
     userId: string
     bio: string
@@ -30,47 +23,74 @@ export interface User {
     totalSales: number
     specialties: string[]
     joinedAt: string
+    rating: {
+      average: number
+      count: number
+    }
     createdAt: string
     updatedAt: string
-    __v: number
-    id: string
   }
+  artworks?: Artwork[]
+  credits: number
+  createdAt: string
+  lastActive?: string
 }
 
-export interface AuthResponse {
-  token: string
-  refreshToken: string
-  user: User
+export interface Artwork {
+  _id: string
+  id: string
+  title: string
+  description: string
+  price: number
+  images: string[]
+  artist:
+    | string
+    | {
+        _id: string
+        username: string
+        profile?: {
+          bio?: string
+          website?: string
+          socialLinks?: {
+            instagram?: string
+            twitter?: string
+            facebook?: string
+          }
+        }
+      }
+  status: "pending" | "approved" | "rejected"
+  currentOwner: string
+  tags: string[]
+  medium: string
+  year: number
+  isOriginal: boolean
+  dimensions: {
+    width: number
+    height: number
+    unit: string
+  }
+  edition?: {
+    number: number
+    total: number
+  }
+  createdAt: string
+  updatedAt: string
+  approvedAt?: string
+  rejectedAt?: string
+  rejectionReason?: string
+  soldAt?: string
 }
 
-export interface ApiResponse<T = any> {
-  status: "success" | "error" | "fail"
-  message: string
-  data?: T
-  errors?: string[]
+export interface LoginRequest {
+  email: string
+  password: string
 }
 
 export interface RegisterRequest {
   username: string
   email: string
   password: string
-  confirmPassword: string
   role: "artist" | "buyer"
-}
-
-export interface RegisterResponse {
-  user: {
-    id: string
-    username: string
-    email: string
-    role: string
-    isVerified: boolean
-  }
-}
-
-export interface LoginRequest {
-  email: string
-  password: string
 }
 
 export interface VerifyOtpRequest {
@@ -91,23 +111,40 @@ export interface ResetPasswordRequest {
   confirmPassword: string
 }
 
+export interface UpdateProfileRequest {
+  profile: {
+    bio?: string
+    website?: string
+    socialLinks?: {
+      facebook?: string
+      instagram?: string
+      twitter?: string
+    }
+  }
+}
+
 export interface UpdatePasswordRequest {
   currentPassword: string
   newPassword: string
   confirmNewPassword: string
 }
 
-export interface UpdateProfileRequest {
-  username?: string
-  profile?: {
-    bio?: string
-    website?: string
-    socialLinks?: {
-      facebook?: string
-      twitter?: string
-      instagram?: string
-    }
-  }
+export interface AuthResponse {
+  user: User
+  token: string
+  refreshToken: string
+}
+
+export interface RegisterResponse {
+  user: User
+  message: string
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean
+  data?: T
+  message?: string
+  error?: string
 }
 
 export interface AuthState {

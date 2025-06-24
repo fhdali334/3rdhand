@@ -1,3 +1,4 @@
+// @ts-ignore
 import { apiClient } from "./client"
 import type { Artwork, ArtworkFilters, CreateArtworkData, UpdateArtworkData } from "@/lib/types/artwork"
 import type { PaginationMeta } from "@/lib/types/api"
