@@ -14,7 +14,6 @@ import { Footer } from "@/components/layout/footer"
 import { X, Loader2, Upload } from "lucide-react"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux"
 import { createArtwork } from "@/lib/store/slices/artworkSlice"
-import { createListingSession } from "@/lib/store/slices/paymentSlice"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -37,7 +36,6 @@ export default function CreateListingPage() {
   const router = useRouter()
   const { toast } = useToast()
   const { createLoading } = useAppSelector((state) => state.artwork)
-  const { sessionLoading } = useAppSelector((state) => state.payment)
   const { user, isAuthenticated } = useAppSelector((state) => state.auth)
 
   const [formData, setFormData] = useState<ArtworkFormData>({
@@ -226,21 +224,16 @@ export default function CreateListingPage() {
 
       toast({
         title: "Artwork created successfully!",
-        description: "Now you need to pay the €1 listing fee to submit for review.",
+        description: "Your artwork has been submitted for admin review. You'll be notified once it's approved.",
       })
 
-      // Create payment session for listing fee
-      const paymentResult = await dispatch(createListingSession(result._id)).unwrap()
-
-      if (paymentResult?.sessionUrl) {
-        // Redirect to Stripe checkout
-        window.location.href = paymentResult.sessionUrl
-      }
+      // Redirect to dashboard instead of payment
+      router.push("/dashboard/artworks")
     } catch (error: any) {
       console.error("Create artwork error:", error)
       toast({
         title: "Error",
-        description: error?.message || "Failed to create artwork. Please try again.",
+        description: error?.message,
         variant: "destructive",
       })
     }
@@ -255,7 +248,6 @@ export default function CreateListingPage() {
 
   return (
     <>
-       
       <div className="container py-6 sm:py-8 px-4">
         <div className="max-w-2xl lg:max-w-3xl mx-auto">
           <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Create a New Listing</h1>
@@ -264,7 +256,9 @@ export default function CreateListingPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Artwork Details</CardTitle>
-                <CardDescription>Fill in the details about your artwork. Each listing costs €1.</CardDescription>
+                <CardDescription>
+                  Fill in the details about your artwork. Your listing will be submitted for admin review.
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
@@ -459,7 +453,6 @@ export default function CreateListingPage() {
                       {imagePreviews.map((preview, index) => (
                         <div key={index} className="relative group">
                           <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-                            {/* Use regular img tag instead of Next.js Image for data URLs */}
                             <img
                               src={preview || "/placeholder.svg"}
                               alt={`Preview ${index + 1}`}
@@ -482,14 +475,14 @@ export default function CreateListingPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button type="submit" disabled={createLoading || sessionLoading} className="w-full">
-                  {createLoading || sessionLoading ? (
+                <Button type="submit" disabled={createLoading} className="w-full">
+                  {createLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Creating Listing...
                     </>
                   ) : (
-                    "Create Listing (€1 fee)"
+                    "Create Listing"
                   )}
                 </Button>
               </CardFooter>

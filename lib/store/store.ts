@@ -1,22 +1,25 @@
 import { configureStore } from "@reduxjs/toolkit"
-import authSlice from "./slices/authSlice"
-import adminSlice from "./slices/adminSlice"
-import artworkSlice from "./slices/artworkSlice"
-import paymentSlice from "./slices/paymentSlice"
-import analyticsSlice from "./slices/analyticsSlice"
+import authReducer from "./slices/authSlice"
+import artworkReducer from "./slices/artworkSlice"
+import paymentReducer from "./slices/paymentSlice"
+import adminReducer from "./slices/adminSlice"
+import analyticsReducer from "./slices/analyticsSlice"
+import messageReducer from "./slices/messageSlice"
 
 export const store = configureStore({
   reducer: {
-    auth: authSlice,
-    admin: adminSlice,
-    artwork: artworkSlice,
-    payment: paymentSlice,
-    analytics: analyticsSlice,
+    auth: authReducer,
+    artwork: artworkReducer,
+    payment: paymentReducer,
+    admin: adminReducer,
+    analytics: analyticsReducer,
+    messages: messageReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
+        ignoredActions: ["messages/updateOnlineUsers", "messages/updateTypingUsers"],
+        ignoredPaths: ["messages.onlineUsers", "messages.typingUsers"],
       },
     }),
 })

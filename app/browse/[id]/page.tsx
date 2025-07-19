@@ -136,7 +136,17 @@ export default function ArtworkDetailPage({ params }: { params: Promise<{ id: st
     }
 
     if (currentArtwork?.artist && typeof currentArtwork.artist === "object") {
-      router.push(`/dashboard/messages?artist=${currentArtwork.artist._id}`)
+      // Create a more contextual initial message
+      const artworkTitle = currentArtwork.title
+      const artistId = currentArtwork.artist._id
+
+      // Redirect to messages page with artist ID and artwork context
+      const params = new URLSearchParams({
+        artist: artistId,
+        ...(artworkTitle && { artwork: artworkTitle }),
+      })
+
+      router.push(`/dashboard/messages?${params.toString()}`)
     }
   }
 
@@ -275,7 +285,7 @@ export default function ArtworkDetailPage({ params }: { params: Promise<{ id: st
 
   const isOwner =
     user?.id === (typeof currentArtwork?.artist === "object" ? currentArtwork.artist._id : currentArtwork?.artist)
-  const isSold = !!currentArtwork?.soldAt
+  // const isSold = !!currentArtwork?.soldAt
   const artworkImages = currentArtwork?.images || ["/placeholder.svg?height=600&width=400"]
   const artistInfo = typeof currentArtwork?.artist === "object" ? currentArtwork.artist : null
 
@@ -296,7 +306,7 @@ export default function ArtworkDetailPage({ params }: { params: Promise<{ id: st
           <div className="relative">
             <Carousel className="w-full">
               <CarouselContent>
-                {artworkImages.map((image, index) => (
+                {artworkImages.map((image: string, index: number) => (
                   <CarouselItem key={index}>
                     <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-100">
                       <Image
@@ -307,13 +317,13 @@ export default function ArtworkDetailPage({ params }: { params: Promise<{ id: st
                         priority={index === 0}
                         onClick={() => openFullScreen(index)}
                       />
-                      {isSold && (
+                      {/* {isSold && (
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                           <Badge variant="destructive" className="text-lg px-4 py-2">
                             SOLD
                           </Badge>
                         </div>
-                      )}
+                      )} */}
                       {/* Full screen button */}
                       <Button
                         variant="secondary"
@@ -339,7 +349,7 @@ export default function ArtworkDetailPage({ params }: { params: Promise<{ id: st
           {/* Thumbnail Images */}
           {artworkImages.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
-              {artworkImages.slice(0, 4).map((image, index) => (
+              {artworkImages.slice(0, 4).map((image: string, index: number) => (
                 <div
                   key={index}
                   className={`relative aspect-square overflow-hidden rounded cursor-pointer border-2 transition-colors ${
@@ -379,7 +389,7 @@ export default function ArtworkDetailPage({ params }: { params: Promise<{ id: st
                 <AvatarFallback>
                   {(artistInfo?.username || "A")
                     .split(" ")
-                    .map((n) => n[0])
+                    .map((n: string) => n[0])
                     .join("")}
                 </AvatarFallback>
               </Avatar>
@@ -394,7 +404,7 @@ export default function ArtworkDetailPage({ params }: { params: Promise<{ id: st
             {/* Price */}
             <div className="mb-6">
               <p className="text-3xl font-bold text-primary">€{currentArtwork?.price?.toLocaleString() || "0"}</p>
-              {isSold && <p className="text-sm text-muted-foreground mt-1">This artwork has been sold</p>}
+              {/* {isSold && <p className="text-sm text-muted-foreground mt-1">This artwork has been sold</p>} */}
             </div>
 
             {/* Description */}
@@ -439,18 +449,18 @@ export default function ArtworkDetailPage({ params }: { params: Promise<{ id: st
 
           {/* Action Buttons */}
           <div className="space-y-4">
-            {!isOwner && !isSold && (
-              <Button size="lg" className="w-full text-lg py-6" onClick={handlePurchase}>
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                Purchase for €{currentArtwork?.price?.toLocaleString() || "0"}
-              </Button>
-            )}
+            {/* {!isOwner && !isSold && ( */}
+            <Button size="lg" className="w-full text-lg py-6" onClick={handlePurchase}>
+              <ShoppingCart className="mr-2 h-5 w-5" />
+              Purchase for €{currentArtwork?.price?.toLocaleString() || "0"}
+            </Button>
+            {/* )} */}
 
-            {isSold && (
+            {/* {isSold && (
               <Button size="lg" className="w-full" disabled>
                 Artwork Sold
               </Button>
-            )}
+            )} */}
 
             {/* Secondary Actions */}
             <div className="flex gap-3">
@@ -458,12 +468,12 @@ export default function ArtworkDetailPage({ params }: { params: Promise<{ id: st
                 <Heart className={`h-5 w-5 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
               </Button>
 
-              <Button variant="outline" size="icon" className="flex-shrink-0">
+              <Button variant="outline" size="icon" className="flex-shrink-0 bg-transparent">
                 <Share2 className="h-5 w-5" />
               </Button>
 
               {!isOwner && (
-                <Button variant="outline" className="flex-1" onClick={handleContactArtist}>
+                <Button variant="outline" className="flex-1 bg-transparent" onClick={handleContactArtist}>
                   <MessageCircle className="h-5 w-5 mr-2" />
                   Message Artist
                 </Button>
@@ -476,7 +486,7 @@ export default function ArtworkDetailPage({ params }: { params: Promise<{ id: st
             <div>
               <p className="text-sm font-medium text-muted-foreground mb-3">Tags</p>
               <div className="flex flex-wrap gap-2">
-                {currentArtwork.tags.map((tag) => (
+                {currentArtwork.tags.map((tag: string) => (
                   <Badge key={tag} variant="outline">
                     {tag}
                   </Badge>
@@ -562,7 +572,7 @@ export default function ArtworkDetailPage({ params }: { params: Promise<{ id: st
               <AvatarFallback className="text-lg">
                 {(artistInfo?.username || "A")
                   .split(" ")
-                  .map((n) => n[0])
+                  .map((n: string) => n[0])
                   .join("")}
               </AvatarFallback>
             </Avatar>

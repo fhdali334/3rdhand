@@ -738,7 +738,6 @@ function DashboardContent() {
           </TabsContent>
         </Tabs>
       </div>
-      <Footer />
     </>
   )
 }

@@ -4,8 +4,6 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -220,7 +218,6 @@ function AdminDashboardContent() {
   if (overviewLoading && !overview) {
     return (
       <>
-         
         <div className="container py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
@@ -235,7 +232,6 @@ function AdminDashboardContent() {
 
   return (
     <>
-      
       <div className="container py-8">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 sm:mb-8">
           <div>
@@ -334,6 +330,9 @@ function AdminDashboardContent() {
             <TabsTrigger value="analytics" className="text-xs sm:text-sm">
               Analytics
             </TabsTrigger>
+            <TabsTrigger value="messages" className="text-xs sm:text-sm">
+              Messages
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="pending">
@@ -412,7 +411,7 @@ function AdminDashboardContent() {
                             </TableCell>
                             <TableCell>
                               <div className="flex space-x-2">
-                                <Button size="sm" variant="outline" className="h-8 w-8 p-0" asChild>
+                                <Button size="sm" variant="outline" className="h-8 w-8 p-0 bg-transparent" asChild>
                                   <Link href={`/browse/${artwork._id}`}>
                                     <Eye className="h-4 w-4" />
                                     <span className="sr-only">View</span>
@@ -421,7 +420,7 @@ function AdminDashboardContent() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="h-8 w-8 p-0 text-green-500 hover:text-green-600"
+                                  className="h-8 w-8 p-0 text-green-500 hover:text-green-600 bg-transparent"
                                   onClick={() => handleApproveArtwork(artwork._id)}
                                   disabled={!artwork.listingFeePaid}
                                 >
@@ -431,7 +430,7 @@ function AdminDashboardContent() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
+                                  className="h-8 w-8 p-0 text-red-500 hover:text-red-600 bg-transparent"
                                   onClick={() => openRejectDialog(artwork._id)}
                                 >
                                   <XCircle className="h-4 w-4" />
@@ -992,6 +991,72 @@ function AdminDashboardContent() {
                       </div>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="messages">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Message Analytics</CardTitle>
+                  <CardDescription>Platform messaging statistics and insights.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {/* Message analytics will be implemented here */}
+                  <div className="space-y-4">
+                    <div className="flex justify-between">
+                      <span>Total Messages</span>
+                      <span className="font-medium">1,250</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Active Conversations</span>
+                      <span className="font-medium">89</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Flagged Messages</span>
+                      <span className="font-medium text-red-600">3</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Messages Today</span>
+                      <span className="font-medium">156</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Flagged Messages</CardTitle>
+                  <CardDescription>Messages that require moderation attention.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="p-3 border rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-sm font-medium">artist_john → buyer_jane</span>
+                        <Badge variant="destructive" className="text-xs">
+                          Flagged
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Inappropriate content detected...</p>
+                      <div className="flex gap-2 mt-2">
+                        <Button size="sm" variant="outline">
+                          Review
+                        </Button>
+                        <Button size="sm" variant="destructive">
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="text-center py-4">
+                      <Button variant="outline" size="sm">
+                        View All Messages
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>

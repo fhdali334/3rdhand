@@ -10,15 +10,18 @@ import Image from "next/image"
 interface Artwork {
   _id: string
   title: string
-  artist: {
-    _id: string
-    username: string
-  }
+  artist:
+    | {
+        _id: string
+        username: string
+      }
+    | string // Allow both object and string types
   price: number
-  images: string[]
+  images: any
   medium?: string
   isOriginal?: boolean
   soldAt?: string
+  category?: string
 }
 
 interface ArtworkCardProps {
@@ -52,13 +55,13 @@ export function ArtworkCard({ artwork, showArtist = true }: ArtworkCardProps) {
         <h3 className="font-medium mb-1 line-clamp-1 text-sm sm:text-base">{artwork.title}</h3>
         {showArtist && (
           <p className="text-xs sm:text-sm text-muted-foreground mb-2">
-            by {artwork.artist?.username || "Unknown Artist"}
+            by {typeof artwork.artist === "object" ? artwork.artist.username : "Unknown Artist"}
           </p>
         )}
         <p className="font-medium text-sm sm:text-base">€{artwork.price}</p>
       </CardContent>
       <CardFooter className="p-3 sm:p-4 pt-0">
-        <Button variant="outline" className="w-full text-xs sm:text-sm" asChild>
+        <Button variant="outline" className="w-full text-xs sm:text-sm bg-transparent" asChild>
           <Link
             href={`/browse/${artwork._id}`}
             onClick={() => {

@@ -100,7 +100,6 @@ export default function ResetPasswordPage() {
             </CardFooter>
           </Card>
         </div>
-        <Footer />
       </>
     )
   }
@@ -122,7 +121,6 @@ export default function ResetPasswordPage() {
             </CardFooter>
           </Card>
         </div>
-        <Footer />
       </>
     )
   }
