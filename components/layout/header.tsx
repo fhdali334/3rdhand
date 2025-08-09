@@ -1,314 +1,298 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  Menu,
-  Search,
-  User,
-  X,
-  LogOut,
-  Settings,
-  LayoutDashboardIcon as Dashboard,
-  UserCircle,
-  Palette,
-  ShoppingBag,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Search, Menu, Bell, MessageSquare, User, Settings, LogOut, Palette, ShoppingCart, Plus } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux"
-import { logoutUser } from "@/lib/store/slices/authSlice"
 import { useToast } from "@/hooks/use-toast"
-
-const routes = [
-  {
-    href: "/",
-    label: "Home",
-  },
-  {
-    href: "/browse",
-    label: "Browse Art",
-  },
-  {
-    href: "/how-it-works",
-    label: "How It Works",
-  },
-]
+import { logoutUser } from "@/lib/store/slices/authSlice"
+import { useTranslation } from "@/lib/hooks/use-translation"  
 
 export function Header() {
-  const [showSearch, setShowSearch] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const dispatch = useAppDispatch()
   const { toast } = useToast()
   const { user, isAuthenticated } = useAppSelector((state) => state.auth)
-
-  // Prevent hydration mismatch
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const { t } = useTranslation()
 
   const handleLogout = async () => {
     try {
       await dispatch(logoutUser()).unwrap()
       toast({
-        title: "Logged out successfully",
-        description: "You have been logged out of your account.",
+        title: t("auth.logoutSuccess"),
+        variant: "default",
       })
       router.push("/")
     } catch (error) {
       toast({
-        title: "Logout failed",
-        description: "There was an error logging you out.",
+        title: t("common.error"),
+        description: t("errors.somethingWentWrong"),
         variant: "destructive",
       })
     }
   }
 
-  const getUserInitials = (username: string) => {
-    return username.slice(0, 2).toUpperCase()
-  }
+  const navigationItems = [
+    { href: "/", label: t("navigation.home") },
+    { href: "/browse", label: t("navigation.browse") },
+    { href: "/artists", label: t("navigation.artists") },
+    { href: "/how-it-works", label: t("navigation.howItWorks") },
+  ]
 
-  const getUserMenuItems = () => {
-    if (!user) return []
-
-    const baseItems = [
-      {
-        href: "/dashboard",
-        label: "Dashboard",
-        icon: Dashboard,
-      },
-      {
-        href: "/profile",
-        label: "Profile",
-        icon: UserCircle,
-      },
-    ]
-
-    // Add admin dashboard for admin users
-    if (user.role === "admin") {
-      baseItems.push({
-        href: "/admin",
-        label: "Admin Dashboard",
-        icon: Settings,
-      })
-    }
-
-    // Add role-specific items
-    if (user.role === "artist") {
-      baseItems.push({
-        href: "/dashboard/artworks",
-        label: "My Artworks",
-        icon: Palette,
-      })
-    }
-
-    if (user.role === "buyer") {
-      baseItems.push({
-        href: "/dashboard/purchases",
-        label: "My Purchases",
-        icon: ShoppingBag,
-      })
-    }
-
-    baseItems.push({
-      href: "/dashboard/messages",
-      label: "Messages",
-      icon: Settings,
-    })
-
-    return baseItems
-  }
-
-  // Render loading state during hydration
-  if (!mounted) {
-    return (
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 sm:h-16 items-center justify-between px-4">
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2 mr-6">
-              <span className="font-bold text-xl">3rdHand</span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-4 lg:gap-6">
-              {routes.map((route) => (
-                <Link
-                  key={route.href}
-                  href={route.href}
-                  className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
-                >
-                  {route.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-          <div className="flex items-center gap-1 sm:gap-2">
-            <Button variant="ghost" size="icon">
-              <Search className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </header>
-    )
-  }
+  const userMenuItems = isAuthenticated
+    ? [
+        { href: "/dashboard", label: t("navigation.dashboard"), icon: User },
+        { href: "/dashboard/artworks", label: t("navigation.myArtworks"), icon: Palette },
+        { href: "/dashboard/purchases", label: t("navigation.myPurchases"), icon: ShoppingCart },
+        { href: "/dashboard/messages", label: t("navigation.messages"), icon: MessageSquare },
+        { href: "/profile", label: t("navigation.profile"), icon: Settings },
+      ]
+    : []
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 sm:h-16 items-center justify-between px-4">
-        <div className="flex items-center">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-[280px] sm:w-[300px]">
-              <nav className="flex flex-col gap-3 sm:gap-4 mt-6 sm:mt-8">
-                {routes.map((route) => (
-                  <Link
-                    key={route.href}
-                    href={route.href}
-                    className={cn(
-                      "text-lg font-medium transition-colors hover:text-primary",
-                      pathname === route.href ? "text-primary" : "text-muted-foreground",
-                    )}
-                  >
-                    {route.label}
-                  </Link>
-                ))}
-                {isAuthenticated && (
-                  <>
-                    <div className="border-t pt-4 mt-4">
-                      <p className="text-sm font-medium text-muted-foreground mb-2">Account</p>
-                      {getUserMenuItems().map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className="flex items-center gap-2 text-lg font-medium transition-colors hover:text-primary py-1"
-                        >
-                          <item.icon className="h-4 w-4" />
-                          {item.label}
-                        </Link>
-                      ))}
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 text-lg font-medium transition-colors hover:text-primary py-1 w-full text-left"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        Logout
-                      </button>
-                    </div>
-                  </>
-                )}
-              </nav>
-            </SheetContent>
-          </Sheet>
-          <Link href="/" className="flex items-center space-x-2 mr-6">
-            <span className="font-bold text-xl">3rdHand</span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-4 lg:gap-6">
-            {routes.map((route) => (
+      <div className="container mx-auto px-4">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center space-x-4">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <Palette className="h-5 w-5 text-white" />
+              </div>
+              <span className="font-bold text-xl">3rd Hand</span>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            {navigationItems.map((item) => (
               <Link
-                key={route.href}
-                href={route.href}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  pathname === route.href ? "text-primary" : "text-muted-foreground",
-                )}
+                key={item.href}
+                href={item.href}
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  pathname === item.href ? "text-primary" : "text-muted-foreground"
+                }`}
               >
-                {route.label}
+                {item.label}
               </Link>
             ))}
           </nav>
-        </div>
-        <div className="flex items-center gap-1 sm:gap-2">
-          {showSearch ? (
-            <div className="flex items-center">
-              <Input type="search" placeholder="Search..." className="w-[150px] sm:w-[200px] md:w-[300px]" />
-              <Button variant="ghost" size="icon" onClick={() => setShowSearch(false)}>
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-          ) : (
-            <Button variant="ghost" size="icon" onClick={() => setShowSearch(true)}>
-              <Search className="h-5 w-5" />
-              <span className="sr-only">Search</span>
-            </Button>
-          )}
 
-          {isAuthenticated && user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.profile?.avatar || "/placeholder.svg"} alt={user.username} />
-                    <AvatarFallback>{getUserInitials(user.username)}</AvatarFallback>
-                  </Avatar>
+          {/* Search Bar */}
+          <div className="hidden lg:flex flex-1 max-w-md mx-8">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder={t("common.search")}
+                className="pl-10 pr-4"
+                onFocus={() => setIsSearchOpen(true)}
+                onBlur={() => setIsSearchOpen(false)}
+              />
+            </div>
+          </div>
+
+          {/* Right Side Actions */}
+          <div className="flex items-center space-x-2">
+            {/* Search Button (Mobile) */}
+            <Button variant="ghost" size="icon" className="lg:hidden">
+              <Search className="h-5 w-5" />
+            </Button>
+
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
+            {isAuthenticated ? (
+              <>
+                {/* Create Listing Button */}
+                <Button asChild size="sm" className="hidden sm:flex">
+                  <Link href="/create-listing">
+                    <Plus className="h-4 w-4 mr-2" />
+                    {t("navigation.createListing")}
+                  </Link>
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <div className="flex items-center justify-start gap-2 p-2">
-                  <div className="flex flex-col space-y-1 leading-none">
-                    <p className="font-medium">{user.username}</p>
-                    <p className="w-[200px] truncate text-sm text-muted-foreground">{user.email}</p>
-                    <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
+
+                {/* Notifications */}
+                {/* <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="relative">
+                      <Bell className="h-5 w-5" />
+                      <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                        3
+                      </Badge>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-80">
+                    <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium">New message from John</p>
+                        <p className="text-xs text-muted-foreground">2 minutes ago</p>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium">Your artwork was liked</p>
+                        <p className="text-xs text-muted-foreground">1 hour ago</p>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium">Payment received</p>
+                        <p className="text-xs text-muted-foreground">3 hours ago</p>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu> */}
+
+                {/* Messages */}
+                <Button asChild variant="ghost" size="icon" className="relative">
+                  <Link href="/dashboard/messages">
+                    <MessageSquare className="h-5 w-5" />
+
+                  </Link>
+                </Button>
+
+                {/* User Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user?.avatar || "/placeholder.svg"} alt={user?.name} />
+                        <AvatarFallback>{user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user?.name || "User"}</p>
+                        <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {userMenuItems.map((item) => (
+                      <DropdownMenuItem key={item.href} asChild>
+                        <Link href={item.href} className="flex items-center">
+                          <item.icon className="mr-2 h-4 w-4" />
+                          <span>{item.label}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                    {user?.role === "admin" && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin" className="flex items-center">
+                            <Settings className="mr-2 h-4 w-4" />
+                            <span>{t("navigation.admin")}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>{t("auth.logout")}</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Button asChild variant="ghost">
+                  <Link href="/auth/login">{t("auth.login")}</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/auth/register">{t("auth.register")}</Link>
+                </Button>
+              </div>
+            )}
+
+            {/* Mobile Menu */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                  <SheetDescription>Navigate through the application</SheetDescription>
+                </SheetHeader>
+                <div className="mt-6 space-y-4">
+                  {/* Mobile Search */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                    <Input placeholder={t("common.search")} className="pl-10" />
                   </div>
+
+                  {/* Navigation Links */}
+                  <nav className="space-y-2">
+                    {navigationItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-accent ${
+                          pathname === item.href ? "bg-accent text-accent-foreground" : "text-foreground"
+                        }`}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </nav>
+
+                  {isAuthenticated && (
+                    <>
+                      <div className="border-t pt-4">
+                        <div className="space-y-2">
+                          {userMenuItems.map((item) => (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              className="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-accent"
+                            >
+                              <item.icon className="mr-3 h-4 w-4" />
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="border-t pt-4">
+                        <Button onClick={handleLogout} variant="ghost" className="w-full justify-start">
+                          <LogOut className="mr-3 h-4 w-4" />
+                          {t("auth.logout")}
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </div>
-                <DropdownMenuSeparator />
-                {getUserMenuItems().map((item) => (
-                  <DropdownMenuItem key={item.href} asChild>
-                    <Link href={item.href} className="flex items-center gap-2">
-                      <item.icon className="h-4 w-4" />
-                      {item.label}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 text-red-600">
-                  <LogOut className="h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
-                  <span className="sr-only">User menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link href="/auth/login" className="flex items-center gap-2">
-                    <User className="h-4 w-4" />
-                    Login
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/auth/register" className="flex items-center gap-2">
-                    <UserCircle className="h-4 w-4" />
-                    Register
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>

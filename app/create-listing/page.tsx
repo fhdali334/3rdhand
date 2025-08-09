@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,9 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-import { X, Loader2, Upload } from "lucide-react"
+import { X, Loader2, Upload } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux"
 import { createArtwork } from "@/lib/store/slices/artworkSlice"
 import { useToast } from "@/hooks/use-toast"
@@ -112,8 +109,8 @@ export default function CreateListingPage() {
     // Create previews
     validFiles.forEach((file) => {
       const reader = new FileReader()
-      reader.onload = (e) => {
-        setImagePreviews((prev) => [...prev, e.target?.result as string])
+      reader.onload = (ev) => {
+        setImagePreviews((prev) => [...prev, (ev.target?.result as string) || ""])
       }
       reader.readAsDataURL(file)
     })
@@ -184,56 +181,49 @@ export default function CreateListingPage() {
         formDataToSend.append("medium", formData.medium)
       }
 
-      // Add dimensions
-      if (formData.width) {
-        formDataToSend.append("dimensions[width]", formData.width)
-      }
-      if (formData.height) {
-        formDataToSend.append("dimensions[height]", formData.height)
-      }
+      // Dimensions
+      if (formData.width) formDataToSend.append("dimensions[width]", formData.width)
+      if (formData.height) formDataToSend.append("dimensions[height]", formData.height)
       formDataToSend.append("dimensions[unit]", formData.unit)
 
-      if (formData.year) {
-        formDataToSend.append("year", formData.year)
-      }
+      if (formData.year) formDataToSend.append("year", formData.year)
 
-      formDataToSend.append("isOriginal", formData.isOriginal.toString())
+      formDataToSend.append("isOriginal", String(formData.isOriginal))
 
-      // Add tags
+      // Tags
       formData.tags.forEach((tag, index) => {
         formDataToSend.append(`tags[${index}]`, tag)
       })
 
-      // Add images
-      images.forEach((image, index) => {
-        formDataToSend.append("images", image)
+      // Files: use "images" consistently, and ensure input name matches.
+      images.forEach((file) => {
+        formDataToSend.append("images", file, file.name)
       })
 
-      // Log the form data for debugging
-      console.log("Form data being sent:")
+      // Debug log to verify files exist
+      console.log("FormData debug:")
       for (const [key, value] of formDataToSend.entries()) {
-        console.log(key, value)
+        if (value instanceof File) {
+          console.log(key, "-> File:", value.name, value.type, value.size)
+        } else {
+          console.log(key, "->", value)
+        }
       }
 
-      const result = await dispatch(
-        createArtwork({
-          artworkData: formDataToSend,
-          images: [], // Images are already in FormData
-        }),
-      ).unwrap()
+      await dispatch(createArtwork(formDataToSend)).unwrap()
 
       toast({
         title: "Artwork created successfully!",
-        description: "Your artwork has been submitted for admin review. You'll be notified once it's approved.",
+        description:
+          "Your artwork has been submitted for admin review. You'll be notified once it's approved.",
       })
 
-      // Redirect to dashboard instead of payment
       router.push("/dashboard/artworks")
     } catch (error: any) {
       console.error("Create artwork error:", error)
       toast({
         title: "Error",
-        description: error?.message,
+        description: error?.message || "Failed to create artwork",
         variant: "destructive",
       })
     }
@@ -252,7 +242,8 @@ export default function CreateListingPage() {
         <div className="max-w-2xl lg:max-w-3xl mx-auto">
           <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Create a New Listing</h1>
 
-          <form onSubmit={handleSubmit}>
+          {/* encType is informational here (we submit via Axios), but helps if you switch to native submit */}
+          <form onSubmit={handleSubmit} encType="multipart/form-data">
             <Card>
               <CardHeader>
                 <CardTitle>Artwork Details</CardTitle>
@@ -269,6 +260,7 @@ export default function CreateListingPage() {
                     value={formData.title}
                     onChange={(e) => handleInputChange("title", e.target.value)}
                     className={errors.title ? "border-destructive" : ""}
+                    name="title"
                   />
                   {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
                 </div>
@@ -282,6 +274,7 @@ export default function CreateListingPage() {
                     value={formData.description}
                     onChange={(e) => handleInputChange("description", e.target.value)}
                     className={errors.description ? "border-destructive" : ""}
+                    name="description"
                   />
                   {errors.description && <p className="text-sm text-destructive">{errors.description}</p>}
                 </div>
@@ -319,6 +312,7 @@ export default function CreateListingPage() {
                       value={formData.price}
                       onChange={(e) => handleInputChange("price", e.target.value)}
                       className={errors.price ? "border-destructive" : ""}
+                      name="price"
                     />
                     {errors.price && <p className="text-sm text-destructive">{errors.price}</p>}
                   </div>
@@ -334,6 +328,7 @@ export default function CreateListingPage() {
                       placeholder="Width"
                       value={formData.width}
                       onChange={(e) => handleInputChange("width", e.target.value)}
+                      name="dimensions[width]"
                     />
                   </div>
 
@@ -346,15 +341,13 @@ export default function CreateListingPage() {
                       placeholder="Height"
                       value={formData.height}
                       onChange={(e) => handleInputChange("height", e.target.value)}
+                      name="dimensions[height]"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="unit">Unit</Label>
-                    <Select
-                      value={formData.unit}
-                      onValueChange={(value) => handleInputChange("unit", value as "cm" | "in")}
-                    >
+                    <Select value={formData.unit} onValueChange={(value) => handleInputChange("unit", value as "cm" | "in")}>
                       <SelectTrigger id="unit">
                         <SelectValue placeholder="Select unit" />
                       </SelectTrigger>
@@ -376,6 +369,7 @@ export default function CreateListingPage() {
                     placeholder="Year created"
                     value={formData.year}
                     onChange={(e) => handleInputChange("year", e.target.value)}
+                    name="year"
                   />
                 </div>
 
@@ -437,6 +431,7 @@ export default function CreateListingPage() {
                         </Label>
                         <Input
                           id="images"
+                          name="images"
                           type="file"
                           multiple
                           accept="image/*"

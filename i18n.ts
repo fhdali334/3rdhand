@@ -1,0 +1,307 @@
+import { notFound } from "next/navigation"
+import { getRequestConfig } from "next-intl/server"
+
+// Can be imported from a shared config
+const locales = ["en", "fr", "nl"]
+
+export default getRequestConfig(async ({ locale }) => {
+  // Validate that the incoming `locale` parameter is valid
+  if (!locales.includes(locale as any)) notFound()
+
+  return {
+    messages: (await import(`./messages/${locale}.json`)).default,
+  }
+})
+
+export const defaultLocales = ["en", "fr", "nl"] as const
+export type Locale = (typeof defaultLocales)[number]
+
+export const defaultLocale: Locale = "en"
+
+export const localeNames: Record<Locale, string> = {
+  en: "English",
+  fr: "Français",
+  nl: "Nederlands",
+}
+
+export const localeFlags: Record<Locale, string> = {
+  en: "🇺🇸",
+  fr: "🇫🇷",
+  nl: "🇳🇱",
+}
+
+// Translation dictionaries
+export const translations = {
+  en: {
+    common: {
+      loading: "Loading...",
+      error: "Error",
+      success: "Success",
+      cancel: "Cancel",
+      save: "Save",
+      delete: "Delete",
+      edit: "Edit",
+      view: "View",
+      search: "Search",
+      filter: "Filter",
+      sort: "Sort",
+      actions: "Actions",
+      back: "Back",
+      next: "Next",
+      previous: "Previous",
+      submit: "Submit",
+      close: "Close",
+      open: "Open",
+      yes: "Yes",
+      no: "No",
+      confirm: "Confirm",
+    },
+    navigation: {
+      home: "Home",
+      browse: "Browse",
+      howItWorks: "How It Works",
+      dashboard: "Dashboard",
+      profile: "Profile",
+      admin: "Admin",
+      myArtworks: "My Artworks",
+      myPurchases: "My Purchases",
+      messages: "Messages",
+      artists: "Artists",
+      createListing: "Create Listing",
+    },
+    auth: {
+      login: "Login",
+      logout: "Logout",
+      register: "Register",
+      email: "Email",
+      password: "Password",
+      confirmPassword: "Confirm Password",
+      forgotPassword: "Forgot Password",
+      resetPassword: "Reset Password",
+      loginSuccess: "Login successful",
+      logoutSuccess: "Successfully logged out",
+      registerSuccess: "Registration successful",
+      invalidCredentials: "Invalid credentials",
+    },
+    home: {
+      title: "Welcome to 3rd Hand",
+      subtitle: "Discover unique artworks from talented artists",
+      heroTitle: "Discover Unique Art from Talented Artists",
+      heroSubtitle: "Connect with artists worldwide and find the perfect piece for your collection",
+      browseArtworks: "Browse Artworks",
+      featuredArtworks: "Featured Artworks",
+      artistSpotlight: "Artist Spotlight",
+      howItWorks: "How It Works",
+      learnMore: "Learn More",
+    },
+    artwork: {
+      title: "Title",
+      description: "Description",
+      price: "Price",
+      category: "Category",
+      artist: "Artist",
+      viewDetails: "View Details",
+      addToFavorites: "Add to Favorites",
+      contactArtist: "Contact Artist",
+      buyNow: "Buy Now",
+    },
+    dashboard: {
+      welcome: "Welcome back",
+      overview: "Overview",
+      totalArtworks: "Total Artworks",
+      totalSales: "Total Sales",
+      recentActivity: "Recent Activity",
+      messages: "Messages",
+    },
+    errors: {
+      pageNotFound: "Page not found",
+      serverError: "Server error",
+      networkError: "Network error",
+      somethingWentWrong: "Something went wrong",
+    },
+  },
+  fr: {
+    common: {
+      loading: "Chargement...",
+      error: "Erreur",
+      success: "Succès",
+      cancel: "Annuler",
+      save: "Enregistrer",
+      delete: "Supprimer",
+      edit: "Modifier",
+      view: "Voir",
+      search: "Rechercher",
+      filter: "Filtrer",
+      sort: "Trier",
+      actions: "Actions",
+      back: "Retour",
+      next: "Suivant",
+      previous: "Précédent",
+      submit: "Soumettre",
+      close: "Fermer",
+      open: "Ouvrir",
+      yes: "Oui",
+      no: "Non",
+      confirm: "Confirmer",
+    },
+    navigation: {
+      home: "Accueil",
+      browse: "Parcourir",
+      howItWorks: "Comment ça marche",
+      dashboard: "Tableau de bord",
+      profile: "Profil",
+      admin: "Admin",
+      myArtworks: "Mes œuvres",
+      myPurchases: "Mes achats",
+      messages: "Messages",
+      artists: "Artistes",
+      createListing: "Créer une annonce",
+    },
+    auth: {
+      login: "Connexion",
+      logout: "Déconnexion",
+      register: "S'inscrire",
+      email: "Email",
+      password: "Mot de passe",
+      confirmPassword: "Confirmer le mot de passe",
+      forgotPassword: "Mot de passe oublié",
+      resetPassword: "Réinitialiser le mot de passe",
+      loginSuccess: "Connexion réussie",
+      logoutSuccess: "Déconnexion réussie",
+      registerSuccess: "Inscription réussie",
+      invalidCredentials: "Identifiants invalides",
+    },
+    home: {
+      title: "Bienvenue sur 3rd Hand",
+      subtitle: "Découvrez des œuvres d'art uniques d'artistes talentueux",
+      heroTitle: "Découvrez des œuvres d'art uniques d'artistes talentueux",
+      heroSubtitle:
+        "Connectez-vous avec des artistes du monde entier et trouvez la pièce parfaite pour votre collection",
+      browseArtworks: "Parcourir les œuvres",
+      featuredArtworks: "Œuvres en vedette",
+      artistSpotlight: "Artiste à l'honneur",
+      howItWorks: "Comment ça marche",
+      learnMore: "En savoir plus",
+    },
+    artwork: {
+      title: "Titre",
+      description: "Description",
+      price: "Prix",
+      category: "Catégorie",
+      artist: "Artiste",
+      viewDetails: "Voir les détails",
+      addToFavorites: "Ajouter aux favoris",
+      contactArtist: "Contacter l'artiste",
+      buyNow: "Acheter maintenant",
+    },
+    dashboard: {
+      welcome: "Bon retour",
+      overview: "Aperçu",
+      totalArtworks: "Total des œuvres",
+      totalSales: "Total des ventes",
+      recentActivity: "Activité récente",
+      messages: "Messages",
+    },
+    errors: {
+      pageNotFound: "Page non trouvée",
+      serverError: "Erreur serveur",
+      networkError: "Erreur réseau",
+      somethingWentWrong: "Quelque chose s'est mal passé",
+    },
+  },
+  nl: {
+    common: {
+      loading: "Laden...",
+      error: "Fout",
+      success: "Succes",
+      cancel: "Annuleren",
+      save: "Opslaan",
+      delete: "Verwijderen",
+      edit: "Bewerken",
+      view: "Bekijken",
+      search: "Zoeken",
+      filter: "Filteren",
+      sort: "Sorteren",
+      actions: "Acties",
+      back: "Terug",
+      next: "Volgende",
+      previous: "Vorige",
+      submit: "Verzenden",
+      close: "Sluiten",
+      open: "Openen",
+      yes: "Ja",
+      no: "Nee",
+      confirm: "Bevestigen",
+    },
+    navigation: {
+      home: "Home",
+      browse: "Bladeren",
+      howItWorks: "Hoe het werkt",
+      dashboard: "Dashboard",
+      profile: "Profiel",
+      admin: "Admin",
+      myArtworks: "Mijn kunstwerken",
+      myPurchases: "Mijn aankopen",
+      messages: "Berichten",
+      artists: "Kunstenaars",
+      createListing: "Advertentie maken",
+    },
+    auth: {
+      login: "Inloggen",
+      logout: "Uitloggen",
+      register: "Registreren",
+      email: "E-mail",
+      password: "Wachtwoord",
+      confirmPassword: "Wachtwoord bevestigen",
+      forgotPassword: "Wachtwoord vergeten",
+      resetPassword: "Wachtwoord resetten",
+      loginSuccess: "Succesvol ingelogd",
+      logoutSuccess: "Succesvol uitgelogd",
+      registerSuccess: "Registratie succesvol",
+      invalidCredentials: "Ongeldige inloggegevens",
+    },
+    home: {
+      title: "Welkom bij 3rd Hand",
+      subtitle: "Ontdek unieke kunstwerken van getalenteerde kunstenaars",
+      heroTitle: "Ontdek unieke kunst van getalenteerde kunstenaars",
+      heroSubtitle: "Maak contact met kunstenaars wereldwijd en vind het perfecte stuk voor je collectie",
+      browseArtworks: "Kunstwerken bekijken",
+      featuredArtworks: "Uitgelichte kunstwerken",
+      artistSpotlight: "Kunstenaar in de spotlight",
+      howItWorks: "Hoe het werkt",
+      learnMore: "Meer leren",
+    },
+    artwork: {
+      title: "Titel",
+      description: "Beschrijving",
+      price: "Prijs",
+      category: "Categorie",
+      artist: "Kunstenaar",
+      viewDetails: "Details bekijken",
+      addToFavorites: "Toevoegen aan favorieten",
+      contactArtist: "Contact kunstenaar",
+      buyNow: "Nu kopen",
+    },
+    dashboard: {
+      welcome: "Welkom terug",
+      overview: "Overzicht",
+      totalArtworks: "Totaal kunstwerken",
+      totalSales: "Totale verkopen",
+      recentActivity: "Recente activiteit",
+      messages: "Berichten",
+    },
+    errors: {
+      pageNotFound: "Pagina niet gevonden",
+      serverError: "Serverfout",
+      networkError: "Netwerkfout",
+      somethingWentWrong: "Er is iets misgegaan",
+    },
+  },
+} as const
+
+export type TranslationKey = keyof typeof translations.en
+export type NestedTranslationKey<T> = T extends object
+  ? { [K in keyof T]: T[K] extends object ? `${string & K}.${string & keyof T[K]}` : string & K }[keyof T]
+  : never
+
+export type AllTranslationKeys = NestedTranslationKey<typeof translations.en>

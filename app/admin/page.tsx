@@ -314,7 +314,7 @@ function AdminDashboardContent() {
         </div>
 
         <Tabs defaultValue="pending" className="space-y-4" onValueChange={handleTabChange}>
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
             <TabsTrigger value="pending" className="text-xs sm:text-sm">
               Pending ({pendingArtworks.length})
             </TabsTrigger>
@@ -368,81 +368,139 @@ function AdminDashboardContent() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                   </div>
                 ) : pendingArtworks.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Artwork</TableHead>
-                          <TableHead>Artist</TableHead>
-                          <TableHead>Price</TableHead>
-                          <TableHead>Submitted</TableHead>
-                          <TableHead>Fee Paid</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {pendingArtworks.map((artwork) => (
-                          <TableRow key={artwork._id}>
-                            <TableCell>
-                              <div className="flex items-center space-x-3">
-                                <div className="relative w-12 h-12 rounded overflow-hidden">
-                                  <Image
-                                    src={artwork.images?.[0] || "/placeholder.svg?height=48&width=48"}
-                                    alt={artwork.title || "Artwork"}
-                                    fill
-                                    className="object-cover"
-                                  />
-                                </div>
-                                <div>
-                                  <p className="font-medium">{artwork.title || "Untitled"}</p>
-                                  <p className="text-sm text-muted-foreground">{artwork.medium || "Unknown"}</p>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>{artwork.artist?.username || "Unknown"}</TableCell>
-                            <TableCell>€{artwork.price || 0}</TableCell>
-                            <TableCell>
-                              {artwork.createdAt ? new Date(artwork.createdAt).toLocaleDateString() : "Unknown"}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant={artwork.listingFeePaid ? "default" : "destructive"}>
-                                {artwork.listingFeePaid ? "Paid" : "Unpaid"}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex space-x-2">
-                                <Button size="sm" variant="outline" className="h-8 w-8 p-0 bg-transparent" asChild>
-                                  <Link href={`/browse/${artwork._id}`}>
-                                    <Eye className="h-4 w-4" />
-                                    <span className="sr-only">View</span>
-                                  </Link>
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="h-8 w-8 p-0 text-green-500 hover:text-green-600 bg-transparent"
-                                  onClick={() => handleApproveArtwork(artwork._id)}
-                                  disabled={!artwork.listingFeePaid}
-                                >
-                                  <CheckCircle className="h-4 w-4" />
-                                  <span className="sr-only">Approve</span>
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="h-8 w-8 p-0 text-red-500 hover:text-red-600 bg-transparent"
-                                  onClick={() => openRejectDialog(artwork._id)}
-                                >
-                                  <XCircle className="h-4 w-4" />
-                                  <span className="sr-only">Reject</span>
-                                </Button>
-                              </div>
-                            </TableCell>
+                  <>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Artwork</TableHead>
+                            <TableHead>Artist</TableHead>
+                            <TableHead>Price</TableHead>
+                            <TableHead>Submitted</TableHead>
+                            <TableHead>Actions</TableHead>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
+                        </TableHeader>
+                        <TableBody>
+                          {pendingArtworks.map((artwork) => (
+                            <TableRow key={artwork._id}>
+                              <TableCell>
+                                <div className="flex items-center space-x-3">
+                                  <div className="relative w-12 h-12 rounded overflow-hidden">
+                                    <Image
+                                      src={artwork.images?.[0] || "/placeholder.svg?height=48&width=48"}
+                                      alt={artwork.title || "Artwork"}
+                                      fill
+                                      className="object-cover"
+                                    />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium">{artwork.title || "Untitled"}</p>
+                                    <p className="text-sm text-muted-foreground">{artwork.medium || "Unknown"}</p>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>{artwork.artist?.username || "Unknown"}</TableCell>
+                              <TableCell>€{artwork.price || 0}</TableCell>
+                              <TableCell>
+                                {artwork.createdAt ? new Date(artwork.createdAt).toLocaleDateString() : "Unknown"}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex space-x-2">
+                                  <Button size="sm" variant="outline" className="h-8 w-8 p-0 bg-transparent" asChild>
+                                    <Link href={`/browse/${artwork._id}`}>
+                                      <Eye className="h-4 w-4" />
+                                      <span className="sr-only">View</span>
+                                    </Link>
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-8 w-8 p-0 text-green-500 hover:text-green-600 bg-transparent"
+                                    onClick={() => handleApproveArtwork(artwork._id)}
+                                    disabled={pendingArtworksLoading}
+                                  >
+                                    <CheckCircle className="h-4 w-4" />
+                                    <span className="sr-only">Approve</span>
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-8 w-8 p-0 text-red-500 hover:text-red-600 bg-transparent"
+                                    onClick={() => openRejectDialog(artwork._id)}
+                                    disabled={pendingArtworksLoading}
+                                  >
+                                    <XCircle className="h-4 w-4" />
+                                    <span className="sr-only">Reject</span>
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {pendingArtworksPagination && pendingArtworksPagination.totalPages > 1 && (
+                      <div className="flex items-center justify-between px-2 py-4">
+                        <div className="text-sm text-muted-foreground">
+                          Showing {(pendingArtworksPagination.page - 1) * pendingArtworksPagination.limit + 1} to{" "}
+                          {Math.min(
+                            pendingArtworksPagination.page * pendingArtworksPagination.limit,
+                            pendingArtworksPagination.total,
+                          )}{" "}
+                          of {pendingArtworksPagination.total} results
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const newPage = pendingArtworksPagination.page - 1
+                              dispatch(updatePendingArtworksFilters({ ...pendingArtworksFilters, page: newPage }))
+                              dispatch(fetchPendingArtworks({ ...pendingArtworksFilters, page: newPage }))
+                            }}
+                            disabled={!pendingArtworksPagination.hasPrevPage || pendingArtworksLoading}
+                          >
+                            Previous
+                          </Button>
+                          <div className="flex items-center space-x-1">
+                            {Array.from({ length: Math.min(5, pendingArtworksPagination.totalPages) }, (_, i) => {
+                              const pageNum = i + 1
+                              const isCurrentPage = pageNum === pendingArtworksPagination.page
+                              return (
+                                <Button
+                                  key={pageNum}
+                                  variant={isCurrentPage ? "default" : "outline"}
+                                  size="sm"
+                                  className="w-8 h-8 p-0"
+                                  onClick={() => {
+                                    dispatch(updatePendingArtworksFilters({ ...pendingArtworksFilters, page: pageNum }))
+                                    dispatch(fetchPendingArtworks({ ...pendingArtworksFilters, page: pageNum }))
+                                  }}
+                                  disabled={pendingArtworksLoading}
+                                >
+                                  {pageNum}
+                                </Button>
+                              )
+                            })}
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const newPage = pendingArtworksPagination.page + 1
+                              dispatch(updatePendingArtworksFilters({ ...pendingArtworksFilters, page: newPage }))
+                              dispatch(fetchPendingArtworks({ ...pendingArtworksFilters, page: newPage }))
+                            }}
+                            disabled={!pendingArtworksPagination.hasNextPage || pendingArtworksLoading}
+                          >
+                            Next
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <div className="text-center py-8">
                     <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />

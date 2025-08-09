@@ -20,20 +20,18 @@ export interface Artwork {
     }
   }
   status: "pending" | "approved" | "rejected"
-  currentOwner:
-    | string
-    | {
-        _id: string
-        username: string
-        profile?: {
-          bio?: string
-          website?: string
-          socialLinks?: {
-            instagram?: string
-            twitter?: string
-          }
-        }
+  currentOwner: {
+    _id: string
+    username: string
+    profile?: {
+      bio?: string
+      website?: string
+      socialLinks?: {
+        instagram?: string
+        twitter?: string
       }
+    }
+  }
   createdAt: string
   updatedAt: string
   approvedAt?: string
@@ -50,10 +48,26 @@ export interface Artwork {
     number: number
     total: number
   }
-  soldAt?: string
+  lastSaleDate?: string
+  totalSales?: number
+  ownershipHistory?: {
+    owner: string
+    purchaseDate: string
+    price: number
+    transactionId: string
+    fromOwner: string
+  }[]
+  ownershipContext?: {
+    isCurrentOwner: boolean
+    isOriginalArtist: boolean
+    canEdit: boolean
+    canDelete: boolean
+    canSell: boolean
+  }
   listingFeePaid?: boolean
   __v?: number
   id?: string
+  rejectionReason?: string
 }
 
 export interface ArtworkFilters extends BaseFilters {
@@ -66,6 +80,7 @@ export interface ArtworkFilters extends BaseFilters {
   isOriginal?: boolean
   soldAt?: boolean
   q?: string // Add search query parameter
+  view?: "created" | "owned" | "sold"
 }
 
 export interface CreateArtworkData {

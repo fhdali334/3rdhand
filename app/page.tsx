@@ -3,13 +3,10 @@ import { FeaturedArtworks } from "@/components/artwork/featured-artworks"
 import { HeroSection } from "@/components/home/hero-section"
 import { HowItWorks } from "@/components/home/how-it-works"
 import { ArtistSpotlight } from "@/components/home/artist-spotlight"
-import { Footer } from "@/components/layout/footer"
-import { Header } from "@/components/layout/header"
 
 export default function Home() {
   return (
     <main className="min-h-screen">
-      
       <HeroSection />
       <FeaturedArtworks />
       <HowItWorks />

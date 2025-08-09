@@ -11,12 +11,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Camera, Check, Edit, Globe, Instagram, Facebook, Twitter, Verified, Loader2, Eye, EyeOff } from "lucide-react"
+import { Camera, Check, Edit, Globe, Instagram, Facebook, Twitter, Verified, Loader2, Eye, EyeOff } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux"
 import { getCurrentUser } from "@/lib/store/slices/authSlice"
 import { useToast } from "@/hooks/use-toast"
 import { AuthGuard } from "@/components/auth/auth-gaurd"
 import { authApi } from "@/lib/api/auth"
+import { artistsApi } from "@/lib/api/artists"
 
 function ProfileContent() {
   const dispatch = useAppDispatch()
@@ -29,6 +30,9 @@ function ProfileContent() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  const [artistFollowers, setArtistFollowers] = useState<number | null>(null)
+  const [artistFollowersLoading, setArtistFollowersLoading] = useState(false)
 
   const [profileData, setProfileData] = useState({
     username: "",
@@ -68,6 +72,28 @@ function ProfileContent() {
         },
       })
     }
+  }, [user])
+
+  useEffect(() => {
+    const loadArtistFollowers = async () => {
+      try {
+        if (!user || user.role !== "artist") return
+        const artistId = (user as any)._id || (user as any).id
+        if (!artistId) return
+        setArtistFollowersLoading(true)
+        const res = await artistsApi.getArtistDetails(artistId)
+        const followers =
+          (res as any)?.data?.data?.profile?.stats?.followers ??
+          (res as any)?.data?.profile?.stats?.followers ??
+          null
+        if (typeof followers === "number") setArtistFollowers(followers)
+      } catch (e) {
+        console.error("Failed to load artist followers:", e)
+      } finally {
+        setArtistFollowersLoading(false)
+      }
+    }
+    loadArtistFollowers()
   }, [user])
 
   const handleSaveProfile = async () => {
@@ -251,7 +277,7 @@ function ProfileContent() {
                   </div>
                   <p className="text-muted-foreground mb-4">{user.email}</p>
                   <Badge variant={user.role === "artist" ? "default" : "secondary"}>
-                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                    {user.role}
                   </Badge>
                 </div>
               </CardContent>
@@ -278,6 +304,12 @@ function ProfileContent() {
                     <div className="flex justify-between">
                       <span>Artworks</span>
                       <span className="font-medium">{user.artworks?.length || 0}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Followers</span>
+                      <span className="font-medium">
+                        {artistFollowersLoading ? "Loading..." : artistFollowers ?? 0}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Member Since</span>

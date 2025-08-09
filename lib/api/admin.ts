@@ -122,4 +122,29 @@ export const adminApi = {
     console.log("👤 Fetching user stats...")
     return apiClient.get("/api/admin/stats/users")
   },
+  getMessageAnalytics: (period: string): Promise<ApiResponse<any>> => {
+    console.log("📈 Fetching message analytics...")
+    return apiClient.get(`/api/admin/messages/analytics?period=${period}`)
+  },
+  getAllMessages: (params: { page?: number; limit?: number }): Promise<ApiResponse<any>> => {
+    console.log("💬 Fetching all messages...")
+    const queryParams = new URLSearchParams()
+    if (params?.page) queryParams.append("page", params.page.toString())
+    if (params?.limit) queryParams.append("limit", params.limit.toString())
+    const queryString = queryParams.toString()
+    const endpoint = `/api/admin/messages${queryString ? `?${queryString}` : ""}`
+    return apiClient.get(endpoint)
+  },
+  flagMessage: (messageId: string): Promise<ApiResponse<any>> => {
+    console.log(`🚩 Flagging message with ID: ${messageId}`)
+    return apiClient.patch(`/api/admin/messages/${messageId}/flag`)
+  },
+  deleteMessage: (messageId: string): Promise<ApiResponse<any>> => {
+    console.log(`🗑️ Deleting message with ID: ${messageId}`)
+    return apiClient.delete(`/api/admin/messages/${messageId}`)
+  },
+  getConversationDetails: (conversationId: string): Promise<ApiResponse<any>> => {
+    console.log(`ℹ️ Fetching conversation details for ID: ${conversationId}`)
+    return apiClient.get(`/api/admin/messages/conversation/${conversationId}`)
+  },
 }

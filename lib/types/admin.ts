@@ -151,8 +151,8 @@ export interface AdminTransaction {
 export interface ArtworkStats {
   _id: null
   totalArtworks: number
-  pendingArtworks: number
   approvedArtworks: number
+  pendingArtworks: number
   rejectedArtworks: number
   soldArtworks: number
   averagePrice: number

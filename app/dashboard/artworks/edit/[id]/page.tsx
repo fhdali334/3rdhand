@@ -478,4 +478,3 @@ export default function EditArtworkPage({ params }: { params: Promise<{ id: stri
     </div>
   )
 }
-    

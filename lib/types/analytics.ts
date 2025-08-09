@@ -17,6 +17,7 @@ export interface TopArtist {
 export interface TopArtwork {
   _id: string
   title: string
+  description: string
   price: number
   images: string[]
   artist: {

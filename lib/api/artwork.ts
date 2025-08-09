@@ -1,6 +1,6 @@
 // @ts-ignore
 import { apiClient } from "./client"
-import type { Artwork, ArtworkFilters, CreateArtworkData, UpdateArtworkData } from "@/lib/types/artwork"
+import type { Artwork, ArtworkFilters, UpdateArtworkData } from "@/lib/types/artwork"
 import type { PaginationMeta } from "@/lib/types/api"
 
 export const artworkApi = {
@@ -79,7 +79,7 @@ export const artworkApi = {
       // Try fallback with general endpoint
       try {
         console.log("🔄 artworkApi.getArtwork - Trying fallback endpoint")
-        const fallbackUrl = `/api/artwork?_id=${id}`
+        const fallbackUrl = `/api/artwork/${id}`
         console.log("📡 artworkApi.getArtwork - Fallback URL:", fallbackUrl)
 
         const fallbackResponse = await apiClient.get<{
@@ -114,7 +114,17 @@ export const artworkApi = {
 
         // If both API calls fail, return mock data for testing
         console.log("🧪 artworkApi.getArtwork - Returning mock data for testing")
-            }
+        return {
+          success: false,
+          error: "Mock data returned due to API failure",
+          data: {
+            status: "error",
+            data: {
+              artwork: null,
+            },
+          },
+        }
+      }
     }
   },
 
@@ -154,6 +164,7 @@ export const artworkApi = {
       if (filters.page) params.append("page", filters.page.toString())
       if (filters.limit) params.append("limit", filters.limit.toString())
       if (filters.sort) params.append("sort", filters.sort)
+      if (filters.view) params.append("view", filters.view)
 
       const queryString = params.toString()
       const url = queryString ? `/api/artwork/my/artworks?${queryString}` : "/api/artwork/my/artworks"
@@ -193,48 +204,8 @@ export const artworkApi = {
   },
 
   // Create artwork - Updated to handle FormData properly
-  createArtwork: async (artworkData: CreateArtworkData | FormData, images: File[]) => {
-    // If artworkData is already FormData, use it directly
-    if (artworkData instanceof FormData) {
-      console.log("Sending FormData directly to API")
-
-      return apiClient.post<{
-        status: string
-        message: string
-        data: {
-          artwork: Artwork
-        }
-      }>("/api/artwork", artworkData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-    }
-
-    // Otherwise, create FormData from the object
-    const formData = new FormData()
-
-    // Add artwork data
-    Object.entries(artworkData).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        if (Array.isArray(value)) {
-          value.forEach((item, index) => formData.append(`${key}[${index}]`, item))
-        } else if (typeof value === "object") {
-          Object.entries(value).forEach(([subKey, subValue]) => {
-            if (subValue !== undefined && subValue !== null) {
-              formData.append(`${key}[${subKey}]`, subValue.toString())
-            }
-          })
-        } else {
-          formData.append(key, value.toString())
-        }
-      }
-    })
-
-    // Add images
-    images.forEach((image) => {
-      formData.append("images", image)
-    })
+  createArtwork: async (artworkData: FormData) => {
+    console.log("Sending FormData directly to API")
 
     return apiClient.post<{
       status: string
@@ -242,7 +213,7 @@ export const artworkApi = {
       data: {
         artwork: Artwork
       }
-    }>("/api/artwork", formData, {
+    }>("/api/artwork", artworkData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

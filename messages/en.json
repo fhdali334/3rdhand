@@ -1,0 +1,157 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "tryAgain": "Try Again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "noResults": "No results found",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
+    "readMore": "Read More",
+    "showMore": "Show More",
+    "showLess": "Show Less",
+    "success": "Success",
+    "actions": "Actions",
+    "open": "Open",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm"
+  },
+  "navigation": {
+    "home": "Home",
+    "browse": "Browse",
+    "artists": "Artists",
+    "howItWorks": "How It Works",
+    "login": "Login",
+    "register": "Register",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "messages": "Messages",
+    "settings": "Settings",
+    "logout": "Logout",
+    "admin": "Admin",
+    "myArtworks": "My Artworks",
+    "myPurchases": "My Purchases",
+    "createListing": "Create Listing"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password",
+    "resetPassword": "Reset Password",
+    "loginSuccess": "Login successful",
+    "logoutSuccess": "Successfully logged out",
+    "registerSuccess": "Registration successful",
+    "invalidCredentials": "Invalid credentials"
+  },
+  "home": {
+    "title": "Discover and collect unique artwork",
+    "subtitle": "Connect directly with artists and find the perfect piece for your collection. List your artwork for just €1 per listing.",
+    "heroTitle": "Discover and collect unique artwork",
+    "heroSubtitle": "Connect directly with artists and find the perfect piece for your collection. List your artwork for just €1 per listing.",
+    "browseArtwork": "Browse Artwork",
+    "browseArtworks": "Browse Artworks",
+    "sellYourArt": "Sell Your Art",
+    "joinCommunity": {
+      "title": "Ready to join our community?",
+      "description": "Whether you're an artist looking to showcase your work or a collector searching for unique pieces, 3rdHand is the perfect platform for you."
+    }
+  },
+  "featuredArtworks": {
+    "title": "Featured Artworks",
+    "subtitle": "Discover exceptional pieces from our community",
+    "viewAllArtworks": "View All Artworks",
+    "noArtworks": "No featured artworks available at the moment.",
+    "browseAllArtworks": "Browse All Artworks"
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "subtitle": "Our platform makes it easy for artists to sell their work and for buyers to discover unique pieces.",
+    "steps": {
+      "createListing": {
+        "title": "1. Create a Listing",
+        "description": "Artists can create listings with images, descriptions, and pricing for just €1 per listing."
+      },
+      "moderation": {
+        "title": "2. Moderation",
+        "description": "We review each listing to ensure quality and authenticity before it goes live."
+      },
+      "connect": {
+        "title": "3. Connect",
+        "description": "Buyers can browse artwork and message artists directly to discuss purchases."
+      },
+      "completeSale": {
+        "title": "4. Complete Sale",
+        "description": "Finalize the transaction directly with the artist and receive your unique artwork."
+      }
+    }
+  },
+  "artistSpotlight": {
+    "title": "Featured Artists",
+    "subtitle": "Discover talented artists from around the world showcasing their unique work.",
+    "viewAllArtists": "View All Artists",
+    "viewProfile": "View Profile",
+    "artworks": "artworks",
+    "artists": {
+      "emma": {
+        "name": "Emma Johnson",
+        "bio": "Contemporary painter specializing in abstract landscapes"
+      },
+      "michael": {
+        "name": "Michael Chen",
+        "bio": "Digital artist creating surreal portraits and dreamscapes"
+      },
+      "sofia": {
+        "name": "Sofia Rodriguez",
+        "bio": "Sculptor working with sustainable materials and natural forms"
+      }
+    }
+  },
+  "artwork": {
+    "title": "Title",
+    "description": "Description",
+    "price": "Price",
+    "category": "Category",
+    "artist": "Artist",
+    "viewDetails": "View Details",
+    "addToFavorites": "Add to Favorites",
+    "contactArtist": "Contact Artist",
+    "buyNow": "Buy Now"
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "overview": "Overview",
+    "totalArtworks": "Total Artworks",
+    "totalSales": "Total Sales",
+    "recentActivity": "Recent Activity",
+    "messages": "Messages"
+  },
+  "errors": {
+    "pageNotFound": "Page not found",
+    "serverError": "Server error",
+    "networkError": "Network error",
+    "somethingWentWrong": "Something went wrong"
+  },
+  "theme": {
+    "toggleTheme": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  }
+}

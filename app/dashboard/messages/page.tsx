@@ -1,9 +1,6 @@
-
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
-import { MessageCircle, Send, Search, User, AlertCircle, Loader2, RefreshCw, MessageSquare } from "lucide-react"
+import { MessageCircle, Send, Search, User, AlertCircle, Loader2, RefreshCw, MessageSquare } from 'lucide-react'
 import { formatDistanceToNow } from "date-fns"
 import {
   useConversations,
@@ -26,13 +23,23 @@ import {
 import { AuthGuard } from "@/components/auth/auth-gaurd"
 import type { Conversation, Message } from "@/lib/api/messages"
 import { useSearchParams } from "next/navigation"
+import { artistsApi } from "@/lib/api/artists"
 
 export default function MessagesPage() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null)
   const [messageContent, setMessageContent] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
+  const [artistFallback, setArtistFallback] = useState<{ username?: string; avatar?: string; role?: string } | null>(
+    null,
+  )
 
-  // React Query hooks
+  // Debounce search input to reduce API calls
+  const [debouncedSearch, setDebouncedSearch] = useState("")
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 350)
+    return () => clearTimeout(t)
+  }, [searchQuery])
+
   const {
     data: conversationsData,
     isLoading: conversationsLoading,
@@ -48,8 +55,7 @@ export default function MessagesPage() {
   } = useConversationMessages(selectedConversation)
 
   const { data: unreadData, isLoading: unreadLoading } = useUnreadCount()
-
-  const { data: searchData, isLoading: searchLoading } = useSearchConversations(searchQuery)
+  const { data: searchData, isLoading: searchLoading } = useSearchConversations(debouncedSearch)
 
   // Mutations
   const sendMessageMutation = useSendMessage()
@@ -65,8 +71,51 @@ export default function MessagesPage() {
   const searchParams = useSearchParams()
   const artistId = searchParams.get("artist")
   const artworkTitle = searchParams.get("artwork")
+  const artistNameParam = searchParams.get("artistName")
 
-  // Auto-select artist conversation when artistId is provided
+  // Ensure a conversation gets selected as soon as artist param is present
+  useEffect(() => {
+    if (artistId && !selectedConversation) {
+      setSelectedConversation(artistId)
+      if (artworkTitle && !messageContent) {
+        setMessageContent(
+          `Hi! I'm interested in your artwork "${decodeURIComponent(artworkTitle)}". Could you tell me more about it?`,
+        )
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [artistId])
+
+  // Prefetch artist profile as a fallback header if needed
+  useEffect(() => {
+    let cancelled = false
+    async function run() {
+      if (!artistId) return
+      try {
+        const res = await artistsApi.getArtistProfile(artistId)
+        const profile = res?.data?.data?.profile
+        if (!cancelled && profile) {
+          setArtistFallback({
+            username: profile?.user?.username,
+            avatar: (profile?.user as any)?.avatar || undefined,
+            role: profile?.user?.role || "artist",
+          })
+        } else if (!cancelled && artistNameParam) {
+          setArtistFallback({ username: decodeURIComponent(artistNameParam), role: "artist" })
+        }
+      } catch {
+        if (!cancelled && artistNameParam) {
+          setArtistFallback({ username: decodeURIComponent(artistNameParam), role: "artist" })
+        }
+      }
+    }
+    void run()
+    return () => {
+      cancelled = true
+    }
+  }, [artistId, artistNameParam])
+
+  // Auto-select artist conversation if it exists in the list
   useEffect(() => {
     if (artistId && !conversationsLoading) {
       if (conversations.length > 0) {
@@ -76,60 +125,35 @@ export default function MessagesPage() {
         if (artistConversation) {
           const userId = artistConversation.otherUser.id || artistConversation.otherUser._id
           setSelectedConversation(userId)
-        } else {
-          // If no existing conversation, set the artist as selected to start new conversation
-          setSelectedConversation(artistId)
-          // Pre-fill message if artwork title is provided
-          if (artworkTitle) {
-            setMessageContent(
-              `Hi! I'm interested in your artwork "${decodeURIComponent(artworkTitle)}". Could you tell me more about it?`,
-            )
-          }
-        }
-      } else {
-        // No conversations exist, set artist as selected
-        setSelectedConversation(artistId)
-        // Pre-fill message if artwork title is provided
-        if (artworkTitle) {
-          setMessageContent(
-            `Hi! I'm interested in your artwork "${decodeURIComponent(artworkTitle)}". Could you tell me more about it?`,
-          )
         }
       }
     }
-  }, [artistId, artworkTitle, conversations, conversationsLoading])
+  }, [artistId, conversations, conversationsLoading])
 
-  console.log("🔍 Messages Page State:", {
-    conversations: conversations.length,
-    conversationsLoading,
-    conversationsError: conversationsError?.message,
-    selectedConversation,
-    messages: messages.length,
-    messagesLoading,
-    messagesError: messagesError?.message,
-    unreadCount,
-  })
+  // Derive the selected conversation record to know its unreadCount
+  const selectedConv = useMemo(
+    () => conversations.find((c: Conversation) => (c.otherUser.id || c.otherUser._id) === selectedConversation),
+    [conversations, selectedConversation],
+  )
 
-  // Mark conversation as read when selected
+  // Mark as read when selected and messages loaded, but only if there are unread items
   useEffect(() => {
-    if (selectedConversation && !messagesLoading) {
+    if (selectedConversation && !messagesLoading && (selectedConv?.unreadCount ?? 0) > 0) {
       markAsReadMutation.mutate(selectedConversation)
     }
-  }, [selectedConversation, messagesLoading])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedConversation, messagesLoading, selectedConv?.unreadCount])
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!messageContent.trim() || !selectedConversation) return
-
     try {
       await sendMessageMutation.mutateAsync({
         receiverId: selectedConversation,
         content: messageContent.trim(),
       })
       setMessageContent("")
-      // Refetch messages and conversations to show the new message
-      refetchMessages()
-      refetchConversations()
+      // No refetch needed; we update caches optimistically.
     } catch (error) {
       console.error("Failed to send message:", error)
     }
@@ -142,7 +166,7 @@ export default function MessagesPage() {
     }
   }
 
-  const displayConversations = searchQuery ? searchResults : conversations
+  const displayConversations = debouncedSearch ? searchResults : conversations
 
   return (
     <AuthGuard>
@@ -211,9 +235,9 @@ export default function MessagesPage() {
                 ) : displayConversations.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>{searchQuery ? "No conversations found" : "No conversations yet"}</p>
+                    <p>{debouncedSearch ? "No conversations found" : "No conversations yet"}</p>
                     <p className="text-sm">
-                      {searchQuery ? "Try a different search term" : "Start a conversation with an artist"}
+                      {debouncedSearch ? "Try a different search term" : "Start a conversation with an artist"}
                     </p>
                   </div>
                 ) : (
@@ -236,15 +260,13 @@ export default function MessagesPage() {
                               alt={conversation.otherUser.username}
                             />
                             <AvatarFallback>
-                              {conversation.otherUser.username?.charAt(0)?.toUpperCase() || (
-                                <User className="h-4 w-4" />
-                              )}
+                              {conversation.otherUser.username?.charAt(0)?.toUpperCase() || <User className="h-4 w-4" />}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
                               <p className="font-medium text-sm truncate">
-                                {conversation.otherUser.username || "Unknown User"}
+                                {conversation.otherUser.username}
                               </p>
                               <div className="flex items-center gap-2">
                                 {conversation.unreadCount > 0 && (
@@ -284,16 +306,22 @@ export default function MessagesPage() {
                 <CardHeader className="border-b">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={otherUser?.avatar || "/placeholder.svg"} alt={otherUser?.username} />
+                      <AvatarImage
+                        src={otherUser?.avatar || artistFallback?.avatar || "/placeholder.svg"}
+                        alt={otherUser?.username || artistFallback?.username }
+                      />
                       <AvatarFallback>
-                        {otherUser?.username?.charAt(0)?.toUpperCase() || <User className="h-4 w-4" />}
+                        {otherUser?.username?.charAt(0)?.toUpperCase() ||
+                          artistFallback?.username?.charAt(0)?.toUpperCase() || <User className="h-4 w-4" />}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <h3 className="font-semibold">{otherUser?.username || "Unknown User"}</h3>
+                      <h3 className="font-semibold">
+                        {otherUser?.username || artistFallback?.username}
+                      </h3>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-xs">
-                          {otherUser?.role || "User"}
+                          {otherUser?.role || artistFallback?.role || "User"}
                         </Badge>
                         {otherUser?.isOnline && (
                           <div className="flex items-center gap-1">
@@ -369,9 +397,7 @@ export default function MessagesPage() {
                                 <AvatarFallback>
                                   {message.isSentByMe
                                     ? message.sender.username?.charAt(0)?.toUpperCase()
-                                    : message.receiver.username?.charAt(0)?.toUpperCase() || (
-                                        <User className="h-4 w-4" />
-                                      )}
+                                    : message.receiver.username?.charAt(0)?.toUpperCase() || <User className="h-4 w-4" />}
                                 </AvatarFallback>
                               </Avatar>
                               <div

@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useTranslation } from "@/lib/hooks/use-translation"
 
 export function HeroSection() {
+  //  const { t } = useTranslation()
   return (
     <section className="relative py-16 sm:py-20 md:py-32 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 z-0" />

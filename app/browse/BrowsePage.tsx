@@ -54,12 +54,12 @@ export default function BrowsePage() {
     limit: 12,
     sort: "-createdAt",
     minPrice: 0,
-    maxPrice: 10000,
+    maxPrice: 80000,
     ...artworksFilters,
   })
 
   const [searchQuery, setSearchQuery] = useState("")
-  const [priceRange, setPriceRange] = useState([0, 10000])
+  const [priceRange, setPriceRange] = useState([0, 80000])
   const [showFilters, setShowFilters] = useState(false)
 
   // Initialize from URL params
@@ -142,7 +142,7 @@ export default function BrowsePage() {
     }
     setLocalFilters(resetFilters)
     setSearchQuery("")
-    setPriceRange([0, 10000])
+    setPriceRange([0, 80000])
     dispatch(updateArtworksFilters(resetFilters))
   }
 
@@ -233,7 +233,7 @@ export default function BrowsePage() {
                   <Slider
                     value={priceRange}
                     onValueChange={handlePriceRangeChange}
-                    max={10000}
+                    max={80000}
                     min={0}
                     step={50}
                     className="mt-2"
