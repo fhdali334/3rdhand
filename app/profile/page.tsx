@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Camera, Check, Edit, Globe, Instagram, Facebook, Twitter, Verified, Loader2, Eye, EyeOff } from 'lucide-react'
+import { Camera, Check, Edit, Globe, Instagram, Facebook, Twitter, Verified, Loader2, Eye, EyeOff } from "lucide-react"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux"
 import { getCurrentUser } from "@/lib/store/slices/authSlice"
 import { useToast } from "@/hooks/use-toast"
@@ -83,9 +83,7 @@ function ProfileContent() {
         setArtistFollowersLoading(true)
         const res = await artistsApi.getArtistDetails(artistId)
         const followers =
-          (res as any)?.data?.data?.profile?.stats?.followers ??
-          (res as any)?.data?.profile?.stats?.followers ??
-          null
+          (res as any)?.data?.data?.profile?.stats?.followers ?? (res as any)?.data?.profile?.stats?.followers ?? null
         if (typeof followers === "number") setArtistFollowers(followers)
       } catch (e) {
         console.error("Failed to load artist followers:", e)
@@ -110,22 +108,35 @@ function ProfileContent() {
 
       const response = await authApi.updateProfile(updateData)
 
-      if (response.success || response.data) {
+      const isSuccess =
+        response.success ||
+        response.data?.status === "success" ||
+        (response.message && response.message.toLowerCase().includes("success")) ||
+        (response.data?.message && response.data.message.toLowerCase().includes("success"))
+
+      if (isSuccess) {
         toast({
-          title: "Profile updated",
-          description: "Your profile has been updated successfully.",
+          title: "Success",
+          description: response.data?.message || response.message || "Profile updated successfully!",
+          variant: "default", // This is the success variant
         })
         setIsEditing(false)
         // Refresh user data
         dispatch(getCurrentUser())
       } else {
-        throw new Error(response.message || "Failed to update profile")
+        // Only throw error if it's actually an error response
+        const errorMessage =
+          response.error ||
+          response.data?.error ||
+          (response.message && !response.message.toLowerCase().includes("success") ? response.message : null) ||
+          "Failed to update profile"
+        throw new Error(errorMessage)
       }
     } catch (error: any) {
       console.error("Profile update error:", error)
       toast({
         title: "Update failed",
-        description: error?.message || "Failed to update profile. Please try again.",
+        description: error?.message || error?.response?.data?.message || "Failed to update profile. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -161,24 +172,46 @@ function ProfileContent() {
         confirmNewPassword: passwordData.confirmNewPassword,
       })
 
-      if (response.success || response.data) {
+      const isSuccess =
+        response.success ||
+        response.data?.status === "success" ||
+        (response.message && response.message.toLowerCase().includes("success")) ||
+        (response.data?.message && response.data.message.toLowerCase().includes("success"))
+
+      if (isSuccess) {
         toast({
-          title: "Password updated",
-          description: "Your password has been updated successfully.",
+          title: "Success",
+          description: response.data?.message || response.message || "Password updated successfully!",
+          variant: "default", // This is the success variant
         })
+
+        // Handle token refresh if provided in response
+        if (response.data?.data?.token) {
+          localStorage.setItem("token", response.data.data.token)
+          if (response.data.data.refreshToken) {
+            localStorage.setItem("refreshToken", response.data.data.refreshToken)
+          }
+        }
+
         setPasswordData({
           currentPassword: "",
           newPassword: "",
           confirmNewPassword: "",
         })
       } else {
-        throw new Error(response.message || "Failed to update password")
+        // Only throw error if it's actually an error response
+        const errorMessage =
+          response.error ||
+          response.data?.error ||
+          (response.message && !response.message.toLowerCase().includes("success") ? response.message : null) ||
+          "Failed to update password"
+        throw new Error(errorMessage)
       }
     } catch (error: any) {
       console.error("Password update error:", error)
       toast({
         title: "Update failed",
-        description: error?.message || "Failed to update password. Please try again.",
+        description: error?.message || error?.response?.data?.message || "Failed to update password. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -276,9 +309,7 @@ function ProfileContent() {
                     )}
                   </div>
                   <p className="text-muted-foreground mb-4">{user.email}</p>
-                  <Badge variant={user.role === "artist" ? "default" : "secondary"}>
-                    {user.role}
-                  </Badge>
+                  <Badge variant={user.role === "artist" ? "default" : "secondary"}>{user.role}</Badge>
                 </div>
               </CardContent>
             </Card>
@@ -308,7 +339,7 @@ function ProfileContent() {
                     <div className="flex justify-between">
                       <span>Followers</span>
                       <span className="font-medium">
-                        {artistFollowersLoading ? "Loading..." : artistFollowers ?? 0}
+                        {artistFollowersLoading ? "Loading..." : (artistFollowers ?? 0)}
                       </span>
                     </div>
                     <div className="flex justify-between">

@@ -53,7 +53,7 @@ export function Header() {
   const navigationItems = [
     { href: "/", label: t("navigation.home") },
     { href: "/browse", label: t("navigation.browse") },
-    { href: "/artists", label: t("navigation.artists") },
+    // { href: "/artists", label: t("navigation.artists") },
     { href: "/how-it-works", label: t("navigation.howItWorks") },
   ]
 
@@ -74,9 +74,9 @@ export function Header() {
           {/* Logo */}
           <div className="flex items-center space-x-4">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              {/* <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <Palette className="h-5 w-5 text-white" />
-              </div>
+              </div> */}
               <span className="font-bold text-xl">3rd Hand</span>
             </Link>
           </div>
@@ -117,7 +117,7 @@ export function Header() {
             </Button>
 
             {/* Language Switcher */}
-            <LanguageSwitcher />
+            {/* <LanguageSwitcher /> */}
 
             {/* Theme Toggle */}
             <ThemeToggle />
