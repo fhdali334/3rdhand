@@ -288,8 +288,12 @@ export default function CreateListingPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Oil on Canvas">Oil on Canvas</SelectItem>
+                        <SelectItem value="video">Video</SelectItem>
+                        <SelectItem value="installation">Installation</SelectItem>
                         <SelectItem value="Acrylic">Acrylic</SelectItem>
                         <SelectItem value="Watercolor">Watercolor</SelectItem>
+                        <SelectItem value="performance">Performance</SelectItem>
+                        <SelectItem value="work on paper">Work On Paper</SelectItem>
                         <SelectItem value="Digital Art">Digital Art</SelectItem>
                         <SelectItem value="Photography">Photography</SelectItem>
                         <SelectItem value="Sculpture">Sculpture</SelectItem>
@@ -297,6 +301,7 @@ export default function CreateListingPage() {
                         <SelectItem value="Pencil Drawing">Pencil Drawing</SelectItem>
                         <SelectItem value="Charcoal">Charcoal</SelectItem>
                         <SelectItem value="Pastel">Pastel</SelectItem>
+                        <SelectItem value="other">« other »</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

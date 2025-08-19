@@ -17,7 +17,7 @@ export function HowItWorks() {
             </div>
             <h3 className="text-xl font-medium mb-2">1. Create a Listing</h3>
             <p className="text-muted-foreground">
-              Artists can create listings with images, descriptions, and pricing for just €1 per listing.
+              Artists can create listings with images, descriptions, and pricing for free.
             </p>
           </div>
           <div className="bg-background rounded-lg p-6 shadow-sm flex flex-col items-center text-center">

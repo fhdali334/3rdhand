@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -10,7 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
-import { MessageCircle, Send, Search, User, AlertCircle, Loader2, RefreshCw, MessageSquare } from 'lucide-react'
+import { MessageCircle, Send, Search, User, AlertCircle, Loader2, RefreshCw, MessageSquare } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import {
   useConversations,
@@ -79,7 +81,7 @@ export default function MessagesPage() {
       setSelectedConversation(artistId)
       if (artworkTitle && !messageContent) {
         setMessageContent(
-          `Hi! I'm interested in your artwork "${decodeURIComponent(artworkTitle)}". Could you tell me more about it?`,
+          `Hi! I'm interested in your artwork "${decodeURIComponent(artworkTitle)}"`,
         )
       }
     }
@@ -167,6 +169,17 @@ export default function MessagesPage() {
   }
 
   const displayConversations = debouncedSearch ? searchResults : conversations
+
+  const isSameRoleError = (error: any) => {
+    return error?.response?.data?.message === "You cannot view messages with users of the same role"
+  }
+
+  const getErrorMessage = (error: any) => {
+    if (isSameRoleError(error)) {
+      return "You cannot message users with the same role. Artists can only message buyers and vice versa."
+    }
+    return "Failed to load messages. Please try again."
+  }
 
   return (
     <AuthGuard>
@@ -260,14 +273,14 @@ export default function MessagesPage() {
                               alt={conversation.otherUser.username}
                             />
                             <AvatarFallback>
-                              {conversation.otherUser.username?.charAt(0)?.toUpperCase() || <User className="h-4 w-4" />}
+                              {conversation.otherUser.username?.charAt(0)?.toUpperCase() || (
+                                <User className="h-4 w-4" />
+                              )}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
-                              <p className="font-medium text-sm truncate">
-                                {conversation.otherUser.username}
-                              </p>
+                              <p className="font-medium text-sm truncate">{conversation.otherUser.username}</p>
                               <div className="flex items-center gap-2">
                                 {conversation.unreadCount > 0 && (
                                   <Badge variant="destructive" className="text-xs">
@@ -308,7 +321,7 @@ export default function MessagesPage() {
                     <Avatar className="h-10 w-10">
                       <AvatarImage
                         src={otherUser?.avatar || artistFallback?.avatar || "/placeholder.svg"}
-                        alt={otherUser?.username || artistFallback?.username }
+                        alt={otherUser?.username || artistFallback?.username}
                       />
                       <AvatarFallback>
                         {otherUser?.username?.charAt(0)?.toUpperCase() ||
@@ -317,7 +330,8 @@ export default function MessagesPage() {
                     </Avatar>
                     <div>
                       <h3 className="font-semibold">
-                        {otherUser?.username || artistFallback?.username}
+                        {otherUser?.username}
+                        {/* {messages.receiver.username} */}
                       </h3>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-xs">
@@ -356,15 +370,17 @@ export default function MessagesPage() {
                       <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
-                          Failed to load messages. Please try again.
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="ml-2 bg-transparent"
-                            onClick={() => refetchMessages()}
-                          >
-                            Retry
-                          </Button>
+                          {getErrorMessage(messagesError)}
+                          {!isSameRoleError(messagesError) && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="ml-2 bg-transparent"
+                              onClick={() => refetchMessages()}
+                            >
+                              Retry
+                            </Button>
+                          )}
                         </AlertDescription>
                       </Alert>
                     ) : messages.length === 0 ? (
@@ -397,7 +413,9 @@ export default function MessagesPage() {
                                 <AvatarFallback>
                                   {message.isSentByMe
                                     ? message.sender.username?.charAt(0)?.toUpperCase()
-                                    : message.receiver.username?.charAt(0)?.toUpperCase() || <User className="h-4 w-4" />}
+                                    : message.receiver.username?.charAt(0)?.toUpperCase() || (
+                                        <User className="h-4 w-4" />
+                                      )}
                                 </AvatarFallback>
                               </Avatar>
                               <div
@@ -433,10 +451,16 @@ export default function MessagesPage() {
                       placeholder="Type your message..."
                       value={messageContent}
                       onChange={(e) => setMessageContent(e.target.value)}
-                      disabled={sendMessageMutation.isPending}
+                      disabled={sendMessageMutation.isPending || isSameRoleError(messagesError)}
                       className="flex-1"
                     />
-                    <Button type="submit" disabled={!messageContent.trim() || sendMessageMutation.isPending} size="sm">
+                    <Button
+                      type="submit"
+                      disabled={
+                        !messageContent.trim() || sendMessageMutation.isPending || isSameRoleError(messagesError)
+                      }
+                      size="sm"
+                    >
                       {sendMessageMutation.isPending ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
@@ -444,6 +468,11 @@ export default function MessagesPage() {
                       )}
                     </Button>
                   </form>
+                  {isSameRoleError(messagesError) && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      💡 Tip: You can only message users with different roles (artists ↔ buyers)
+                    </p>
+                  )}
                 </div>
               </>
             ) : (
