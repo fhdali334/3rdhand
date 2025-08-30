@@ -173,9 +173,9 @@ export default function ArtistsPage() {
                       </Badge>
                     </div>
 
-                    <Button asChild className="w-full">
+                    {/* <Button asChild className="w-full">
                       <Link href={`/artists/${artist._id}`}>View Profile</Link>
-                    </Button>
+                    </Button> */}
                   </div>
                 </CardContent>
               </Card>

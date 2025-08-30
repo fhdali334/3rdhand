@@ -8,7 +8,7 @@ export function HeroSection() {
     <section className="relative py-16 sm:py-20 md:py-32 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 z-0" />
       <div
-        className="absolute inset-0 z-0 opacity-30"
+        className="absolute inset-0 z-0 opacity-60"
         style={{
           backgroundImage: "url('/images/hero-bg.jpeg')",
           backgroundSize: "cover",
@@ -21,8 +21,7 @@ export function HeroSection() {
             Discover and collect unique artwork
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-6 sm:mb-8">
-            Connect directly with artists and find the perfect piece for your collection. List your artwork for just €1
-            per listing.
+            Connect directly with artists and find the perfect piece for your collection.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Button size="lg" className="w-full sm:w-auto" asChild>

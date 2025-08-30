@@ -59,9 +59,9 @@ export function ArtistSpotlight() {
                   <h3 className="text-xl font-medium mb-2">{artist.name}</h3>
                   <p className="text-muted-foreground mb-4">{artist.bio}</p>
                   <p className="text-sm mb-4">{artist.artCount} artworks</p>
-                  <Button variant="outline" size="sm" asChild>
+                  {/* <Button variant="outline" size="sm" asChild>
                     <Link href={`/artists/${artist.id}`}>View Profile</Link>
-                  </Button>
+                  </Button> */}
                 </div>
               </CardContent>
             </Card>

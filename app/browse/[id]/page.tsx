@@ -18,7 +18,26 @@ import { traceabilityApi } from "@/lib/api/traceability"
 import { engagementApi } from "@/lib/api/engagement"
 import { artistsApi, type ArtistDetailsResponse } from "@/lib/api/artists"
 import { cn } from "@/lib/utils"
-import { Heart, Share2, MessageCircle, ShoppingCart, ChevronLeft, ChevronRight, ExternalLink, Loader2, AlertCircle, Calendar, User, CreditCard, Shield, Clock, CheckCircle, Users, Globe, Star } from 'lucide-react'
+import {
+  Heart,
+  Share2,
+  MessageCircle,
+  ShoppingCart,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Loader2,
+  AlertCircle,
+  Calendar,
+  User,
+  CreditCard,
+  Shield,
+  Clock,
+  CheckCircle,
+  Users,
+  Globe,
+  Star,
+} from "lucide-react"
 
 interface ArtworkDetail {
   _id: string
@@ -100,7 +119,7 @@ interface ArtworkDetail {
   year?: number
   isOriginal?: boolean
   edition?: { number: number; total: number }
-  engagementStats?: { totalLikes: number; totalViews:number; popularityScore: number }
+  engagementStats?: { totalLikes: number; totalViews: number; popularityScore: number }
   likedBy?: string[]
   createdAt?: string
   ownershipHistory?: any[]
@@ -318,8 +337,29 @@ export default function ArtworkDetailPage() {
     // Use the correct query param key: "artist" (NOT "user"), and pass artistName for header fallback.
     const messageUrl = `/dashboard/messages?artist=${encodeURIComponent(
       artistInfo._id,
+    )}&artwork=${encodeURIComponent(artwork?.title || "")}&artistName=${encodeURIComponent(artistInfo?.username || "")}`
+    router.push(messageUrl)
+  }
+
+  const handleContactOwner = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to contact the owner.",
+        variant: "destructive",
+      })
+      router.push("/auth/login")
+      return
+    }
+    if (!artwork?.currentOwner?._id) {
+      toast({ title: "Error", description: "Owner information not available", variant: "destructive" })
+      return
+    }
+    // Route to messages with current owner details
+    const messageUrl = `/dashboard/messages?artist=${encodeURIComponent(
+      artwork.currentOwner._id,
     )}&artwork=${encodeURIComponent(artwork?.title || "")}&artistName=${encodeURIComponent(
-      artistInfo?.username || "",
+      artwork.currentOwner?.username || "",
     )}`
     router.push(messageUrl)
   }
@@ -351,8 +391,7 @@ export default function ArtworkDetailPage() {
       })
 
       const res = await engagementApi.likeArtwork(artwork._id)
-      const action =
-        (res as any)?.data?.data?.action || (res as any)?.data?.action || (res as any)?.action
+      const action = (res as any)?.data?.data?.action || (res as any)?.data?.action || (res as any)?.action
 
       if (!action) return
       const liked = action === "liked"
@@ -404,8 +443,7 @@ export default function ArtworkDetailPage() {
     }
     try {
       setFollowLoading(true)
-      const currentlyFollowing =
-        artistProfile?.engagement?.isFollowing ?? engagementContext?.isFollowingArtist ?? false
+      const currentlyFollowing = artistProfile?.engagement?.isFollowing ?? engagementContext?.isFollowingArtist ?? false
       setArtistProfile((prev) => {
         if (!prev) return prev
         const currentFollowers = prev.stats?.followers ?? 0
@@ -418,8 +456,7 @@ export default function ArtworkDetailPage() {
       })
 
       const res = await engagementApi.followArtist(artistId)
-      const action =
-        (res as any)?.data?.data?.action || (res as any)?.data?.action || (res as any)?.action
+      const action = (res as any)?.data?.data?.action || (res as any)?.data?.action || (res as any)?.action
 
       const followed = action === "followed"
       setArtwork((prev) => {
@@ -459,7 +496,8 @@ export default function ArtworkDetailPage() {
     setFullScreenOpen(true)
   }
   const nextFullScreenImage = () => setFullScreenImageIndex((prev) => (prev + 1) % artworkImages.length)
-  const prevFullScreenImage = () => setFullScreenImageIndex((prev) => (prev - 1 + artworkImages.length) % artworkImages.length)
+  const prevFullScreenImage = () =>
+    setFullScreenImageIndex((prev) => (prev - 1 + artworkImages.length) % artworkImages.length)
 
   const handleShare = async () => {
     const url = typeof window !== "undefined" ? window.location.href : ""
@@ -652,10 +690,18 @@ export default function ArtworkDetailPage() {
                 <Share2 className="h-5 w-5" />
               </Button>
 
-              {!isOwner && (
+              {/* {!isOwner && (
                 <Button variant="outline" className="flex-1 bg-transparent" onClick={handleContactArtist}>
                   <MessageCircle className="h-5 w-5 mr-2" />
                   Message {isSold ? "Owner" : "Artist"}
+                </Button>
+              )} */}
+
+              {/* Added separate button to message current owner when artwork is sold and owner is different from artist */}
+              {!isOwner && isSold && artwork.currentOwner._id !== artwork.artist._id && (
+                <Button variant="outline" className="flex-1 bg-transparent" onClick={handleContactOwner}>
+                  <MessageCircle className="h-5 w-5 mr-2" />
+                  Message Owner
                 </Button>
               )}
             </div>
@@ -679,9 +725,11 @@ export default function ArtworkDetailPage() {
 
       {/* Additional Information Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="mt-12">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="details">Details</TabsTrigger>
           <TabsTrigger value="artist">Artist</TabsTrigger>
+          {/* Added current owner tab when artwork is sold */}
+          {isSold && <TabsTrigger value="owner">Current Owner</TabsTrigger>}
           <TabsTrigger value="history">History</TabsTrigger>
           <TabsTrigger value="provenance">Provenance</TabsTrigger>
         </TabsList>
@@ -779,15 +827,16 @@ export default function ArtworkDetailPage() {
 
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-xl font-semibold">{artistProfile?.user?.username || artistInfo?.username || "Artist"}</h3>
+                    <h3 className="text-xl font-semibold">
+                      {artistProfile?.user?.username || artistInfo?.username || "Artist"}
+                    </h3>
                     {(artistProfile?.user?.verified || artistInfo?.profile) && (
                       <Badge variant="secondary">Verified</Badge>
                     )}
+                    <Badge variant="outline">Original Artist</Badge>
                   </div>
                   <p className="text-muted-foreground mt-2">
-                    {artistProfile?.extendedProfile?.bio ||
-                      artistInfo?.profile?.bio ||
-                      "No biography available."}
+                    {artistProfile?.extendedProfile?.bio || artistInfo?.profile?.bio || "No biography available."}
                   </p>
 
                   {/* Links and Meta */}
@@ -830,7 +879,11 @@ export default function ArtworkDetailPage() {
                   {/* Follow + Stats */}
                   <div className="mt-4 flex flex-wrap items-center gap-3">
                     <Button
-                      variant={artistProfile?.engagement?.isFollowing || engagementContext.isFollowingArtist ? "default" : "outline"}
+                      variant={
+                        artistProfile?.engagement?.isFollowing || engagementContext.isFollowingArtist
+                          ? "default"
+                          : "outline"
+                      }
                       onClick={handleFollowToggle}
                       disabled={followLoading || !(artistProfile?.engagement?.canFollow ?? engagementContext.canFollow)}
                     >
@@ -859,11 +912,11 @@ export default function ArtworkDetailPage() {
                     </div>
                   </div>
 
-                  <div className="mt-3">
+                  {/* <div className="mt-3">
                     <Button variant="outline" asChild>
                       <Link href={`/artists/${artistInfo?._id}`}>View Full Profile</Link>
                     </Button>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
@@ -941,6 +994,117 @@ export default function ArtworkDetailPage() {
             </div>
           )}
         </TabsContent>
+
+        {/* Added current owner tab content */}
+        {isSold && (
+          <TabsContent value="owner" className="mt-6">
+            <div className="flex flex-col gap-6">
+              <div className="flex items-start gap-6">
+                <Avatar className="h-16 w-16">
+                  <AvatarImage src="/owner-avatar.png" alt={artwork.currentOwner?.username} />
+                  <AvatarFallback className="text-lg">
+                    {(artwork.currentOwner?.username || "O")
+                      .split(" ")
+                      .map((n: string) => n[0])
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-xl font-semibold">{artwork.currentOwner?.username || "Current Owner"}</h3>
+                    <Badge variant="secondary">Current Owner</Badge>
+                  </div>
+                  <p className="text-muted-foreground mt-2">
+                    {artwork.currentOwner?.profile?.bio || "No biography available."}
+                  </p>
+
+                  {/* Owner Links and Meta */}
+                  <div className="flex flex-wrap items-center gap-4 mt-3">
+                    {artwork.currentOwner?.profile?.website && (
+                      <a
+                        href={artwork.currentOwner.profile.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-sm text-primary hover:underline"
+                      >
+                        <Globe className="h-4 w-4 mr-1" />
+                        Website
+                      </a>
+                    )}
+                    {artwork.currentOwner?.profile?.socialLinks?.instagram && (
+                      <a
+                        href={artwork.currentOwner.profile.socialLinks.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-sm text-primary hover:underline"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-1" />
+                        Instagram
+                      </a>
+                    )}
+                    {artwork.currentOwner?.profile?.socialLinks?.twitter && (
+                      <a
+                        href={artwork.currentOwner.profile.socialLinks.twitter}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-sm text-primary hover:underline"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-1" />
+                        Twitter
+                      </a>
+                    )}
+                  </div>
+
+                  {/* Contact Owner Button */}
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    {!isOwner && (
+                      <Button variant="outline" onClick={handleContactOwner}>
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Message Owner
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Owner Information Card */}
+              <Card>
+                <CardContent className="p-6">
+                  <h4 className="font-semibold mb-3">Ownership Information</h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Owner Since</p>
+                      <p className="text-sm">
+                        {artwork.ownershipHistory && artwork.ownershipHistory.length > 0
+                          ? new Date(artwork.ownershipHistory[0].purchaseDate).toLocaleDateString()
+                          : "Original purchase"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Purchase Price</p>
+                      <p className="text-sm">
+                        {artwork.ownershipHistory && artwork.ownershipHistory.length > 0
+                          ? `€${artwork.ownershipHistory[0].price.toLocaleString()}`
+                          : `€${artwork.price?.toLocaleString() || "0"}`}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Shield className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium">Verified Ownership</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      This ownership is verified through blockchain technology and our secure transfer system.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        )}
 
         <TabsContent value="history" className="mt-6">
           <h3 className="text-xl font-semibold mb-4">Ownership History</h3>
@@ -1059,8 +1223,9 @@ export default function ArtworkDetailPage() {
             <Image
               src={
                 artworkImages[fullScreenImageIndex] ||
-                "/placeholder.svg?height=800&width=600&query=artwork-fullscreen"
-               || "/placeholder.svg"}
+                "/placeholder.svg?height=800&width=600&query=artwork-fullscreen" ||
+                "/placeholder.svg"
+              }
               alt={`${artwork?.title} - Full Screen`}
               fill
               className="object-contain"
