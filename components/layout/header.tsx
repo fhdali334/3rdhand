@@ -85,7 +85,7 @@ export function Header() {
               {/* <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <Palette className="h-5 w-5 text-white" />
               </div> */}
-              <span className="font-bold text-xl">3rd Hand</span>
+              <span className="font-bold text-xl ">3rd Hand</span>
             </Link>
           </div>
 
