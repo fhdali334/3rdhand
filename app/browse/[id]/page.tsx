@@ -357,7 +357,7 @@ export default function ArtworkDetailPage() {
     }
     // Route to messages with current owner details
     const messageUrl = `/dashboard/messages?artist=${encodeURIComponent(
-      artwork.currentOwner._id,
+      artwork.currentOwner.username,
     )}&artwork=${encodeURIComponent(artwork?.title || "")}&artistName=${encodeURIComponent(
       artwork.currentOwner?.username || "",
     )}`
@@ -660,14 +660,14 @@ export default function ArtworkDetailPage() {
           {/* Action Buttons */}
           <div className="space-y-4">
             {/* Purchase Button */}
-            <Button size="lg" className="w-full text-lg py-6" onClick={handlePurchase} disabled={!canBuy}>
+            {/* <Button size="lg" className="w-full text-lg py-6" onClick={handlePurchase} disabled={!canBuy}>
               <ShoppingCart className="mr-2 h-5 w-5" />
               {canBuy
                 ? `Purchase from ${purchaseType === "from_owner" ? "Owner" : "Artist"} for €${artwork?.price?.toLocaleString() || "0"}`
                 : isOwner
                   ? "You own this artwork"
                   : "Not available for purchase"}
-            </Button>
+            </Button> */}
 
             {/* Secondary Actions */}
             <div className="flex gap-3">
@@ -698,7 +698,7 @@ export default function ArtworkDetailPage() {
               )} */}
 
               {/* Added separate button to message current owner when artwork is sold and owner is different from artist */}
-              {!isOwner && isSold && artwork.currentOwner._id !== artwork.artist._id && (
+              {!isOwner && isSold && artwork.currentOwner.username !== artwork.artist.username && (
                 <Button variant="outline" className="flex-1 bg-transparent" onClick={handleContactOwner}>
                   <MessageCircle className="h-5 w-5 mr-2" />
                   Message Owner
@@ -1122,7 +1122,7 @@ export default function ArtworkDetailPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <User className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{history.owner}</span>
+                          <span className="font-medium">{artwork.currentOwner.username}</span>
                           {index === 0 && <Badge variant="secondary">Current Owner</Badge>}
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-muted-foreground">
@@ -1135,10 +1135,10 @@ export default function ArtworkDetailPage() {
                           </div>
                           <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            From: {history.fromOwner}
+                            From: {artwork.artist.username}
                           </div>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-2">Transaction ID: {history.transactionId}</p>
+                        {/* <p className="text-xs text-muted-foreground mt-2">Transaction ID: {history.transactionId}</p> */}
                       </div>
                     </div>
                   </CardContent>

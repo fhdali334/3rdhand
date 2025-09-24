@@ -217,7 +217,7 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
                           title: artwork.title,
                           artist: artist.username,
                           price: artwork.price,
-                          images: artwork.images[0],
+                          images: artwork.images || artwork.images[0],
                           category: artwork.medium || "Art",
                         }}
                       />

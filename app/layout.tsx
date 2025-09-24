@@ -8,9 +8,8 @@ import { Footer } from "@/components/layout/footer"
 import { Toaster } from "@/components/ui/toaster"
 import { ReduxProvider } from "@/lib/providers/redux-provider"
 import { QueryProvider } from "@/lib/providers/query-provider"
-import { TranslationProvider } from "@/lib/providers/translation-provider"
-import { AuthInitializer } from "@/components/auth/auth-inilializer"
-import { AutoTranslator } from "@/components/i18n/auto-translator"
+// import { TranslationProvider } from "@/lib/providers/translation-provider"
+
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -27,15 +26,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <TranslationProvider>
+        {/* <TranslationProvider> */}
           <QueryProvider>
             <ReduxProvider>
               <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                <AuthInitializer />
+                {/* <AuthInitializer /> */}
                 <div className="min-h-screen flex flex-col">
                   <Header />
                   <main className="flex-1">
-                    <AutoTranslator>{children}</AutoTranslator>
+                    {children}
                   </main>
                   <Footer />
                 </div>
@@ -43,7 +42,7 @@ export default function RootLayout({
               </ThemeProvider>
             </ReduxProvider>
           </QueryProvider>
-        </TranslationProvider>
+      
       </body>
     </html>
   )

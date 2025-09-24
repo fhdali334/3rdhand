@@ -10,7 +10,7 @@ export default function Home() {
       <HeroSection />
       <FeaturedArtworks />
       <HowItWorks />
-      <ArtistSpotlight />
+      {/* <ArtistSpotlight /> */}
       <section className="bg-muted py-16">
         <div className="container text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to join our community?</h2>

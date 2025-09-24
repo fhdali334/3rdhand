@@ -22,7 +22,7 @@ import { LanguageSwitcher } from "@/components/language-switcher"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux"
 import { useToast } from "@/hooks/use-toast"
 import { logoutUser } from "@/lib/store/slices/authSlice"
-import { useTranslation } from "@/lib/hooks/use-translation"  
+// import { useTranslation } from "@/lib/hooks/use-translation"  
 
 export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -31,39 +31,47 @@ export function Header() {
   const dispatch = useAppDispatch()
   const { toast } = useToast()
   const { user, isAuthenticated } = useAppSelector((state) => state.auth)
-  const { t } = useTranslation()
+  // const { t } = useTranslation()
 
   const handleLogout = async () => {
     try {
       await dispatch(logoutUser()).unwrap()
       toast({
-        title: t("auth.logoutSuccess"),
+        title: ("auth.logoutSuccess"),
         variant: "default",
       })
       router.push("/")
     } catch (error) {
       toast({
-        title: t("common.error"),
-        description: t("errors.somethingWentWrong"),
+        title: ("error"),
+        description: ("errors.somethingWentWrong"),
         variant: "destructive",
       })
     }
   }
 
   const navigationItems = [
-    { href: "/", label: t("navigation.home") },
-    { href: "/browse", label: t("navigation.browse") },
-    // { href: "/artists", label: t("navigation.artists") },
-    { href: "/how-it-works", label: t("navigation.howItWorks") },
+  {
+    href: "/",
+    label: "Home",
+  },
+  {
+    href: "/browse",
+    label: "Browse Art",
+  },
+  {
+    href: "/how-it-works",
+    label: "How It Works",
+  },
   ]
 
   const userMenuItems = isAuthenticated
     ? [
-        { href: "/dashboard", label: t("navigation.dashboard"), icon: User },
-        { href: "/dashboard/artworks", label: t("navigation.myArtworks"), icon: Palette },
-        { href: "/dashboard/purchases", label: t("navigation.myPurchases"), icon: ShoppingCart },
-        { href: "/dashboard/messages", label: t("navigation.messages"), icon: MessageSquare },
-        { href: "/profile", label: t("navigation.profile"), icon: Settings },
+        { href: "/dashboard", label: "Dashboard", icon: User },
+        { href: "/dashboard/artworks", label: "My Artworks", icon: Palette },
+        { href: "/dashboard/purchases", label: "My Purchases", icon: ShoppingCart },
+        { href: "/dashboard/messages", label: "Messages", icon: MessageSquare },
+        { href: "/profile", label: "Profile", icon: Settings },
       ]
     : []
 
@@ -101,7 +109,7 @@ export function Header() {
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
-                placeholder={t("common.search")}
+                placeholder="Search"
                 className="pl-10 pr-4"
                 onFocus={() => setIsSearchOpen(true)}
                 onBlur={() => setIsSearchOpen(false)}
@@ -128,7 +136,7 @@ export function Header() {
                 <Button asChild size="sm" className="hidden sm:flex">
                   <Link href="/create-listing">
                     <Plus className="h-4 w-4 mr-2" />
-                    {t("navigation.createListing")}
+                    Create Listing
                   </Link>
                 </Button>
 
@@ -205,7 +213,7 @@ export function Header() {
                         <DropdownMenuItem asChild>
                           <Link href="/admin" className="flex items-center">
                             <Settings className="mr-2 h-4 w-4" />
-                            <span>{t("navigation.admin")}</span>
+                            <span>Admin</span>
                           </Link>
                         </DropdownMenuItem>
                       </>
@@ -213,7 +221,7 @@ export function Header() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="mr-2 h-4 w-4" />
-                      <span>{t("auth.logout")}</span>
+                      <span>Logout</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -221,10 +229,10 @@ export function Header() {
             ) : (
               <div className="flex items-center space-x-2">
                 <Button asChild variant="ghost">
-                  <Link href="/auth/login">{t("auth.login")}</Link>
+                  <Link href="/auth/login">Login</Link>
                 </Button>
                 <Button asChild>
-                  <Link href="/auth/register">{t("auth.register")}</Link>
+                  <Link href="/auth/register">Register</Link>
                 </Button>
               </div>
             )}
@@ -245,7 +253,7 @@ export function Header() {
                   {/* Mobile Search */}
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                    <Input placeholder={t("common.search")} className="pl-10" />
+                    <Input placeholder="search" className="pl-10" />
                   </div>
 
                   {/* Navigation Links */}
@@ -283,7 +291,7 @@ export function Header() {
                       <div className="border-t pt-4">
                         <Button onClick={handleLogout} variant="ghost" className="w-full justify-start">
                           <LogOut className="mr-3 h-4 w-4" />
-                          {t("auth.logout")}
+                          Logout
                         </Button>
                       </div>
                     </>
