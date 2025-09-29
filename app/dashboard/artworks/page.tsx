@@ -236,12 +236,14 @@ function MyArtworksContent() {
             <h1 className="text-2xl sm:text-3xl font-bold">My Artworks</h1>
             <p className="text-muted-foreground">Manage your artwork collection</p>
           </div>
+          <Link href="/create-listing">
           <Button asChild className="w-full sm:w-auto">
-            <Link href="/create-listing">
+            
               <Plus className="mr-2 h-4 w-4" />
               Add New Artwork
-            </Link>
+            
           </Button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -395,12 +397,14 @@ function MyArtworksContent() {
                         : "Try adjusting your search or filter criteria."}
                     </p>
                     {getCurrentArtworks().length === 0 && activeTab === "created" && (
+                      <Link href="/create-listing">
                       <Button asChild>
-                        <Link href="/create-listing">
+                        
                           <Plus className="mr-2 h-4 w-4" />
                           Create Your First Artwork
-                        </Link>
+                       
                       </Button>
+                       </Link>
                     )}
                   </div>
                 ) : viewMode === "grid" ? (

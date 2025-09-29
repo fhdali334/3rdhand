@@ -166,12 +166,14 @@ function DashboardContent() {
             </p>
           </div>
           {user.role === "artist" && (
+            <Link href="/create-listing">
             <Button asChild className="mt-4 lg:mt-0">
-              <Link href="/create-listing">
+              
                 <PlusCircle className="h-4 w-4 mr-2" />
                 Create Listing
-              </Link>
+             
             </Button>
+             </Link>
           )}
         </div>
 
@@ -409,12 +411,14 @@ function DashboardContent() {
                       <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-lg font-medium mb-2">No artworks yet</h3>
                       <p className="text-muted-foreground mb-4">Start by creating your first artwork listing.</p>
+                      <Link href="/create-listing">
                       <Button asChild>
-                        <Link href="/create-listing">
+                        
                           <PlusCircle className="h-4 w-4 mr-2" />
                           Create Listing
-                        </Link>
+                        
                       </Button>
+                      </Link>
                     </div>
                   )}
                 </CardContent>
