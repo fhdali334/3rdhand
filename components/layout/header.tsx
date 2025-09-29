@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,66 +14,88 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Search, Menu, Bell, MessageSquare, User, Settings, LogOut, Palette, ShoppingCart, Plus } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { LanguageSwitcher } from "@/components/language-switcher"
-import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux"
-import { useToast } from "@/hooks/use-toast"
-import { logoutUser } from "@/lib/store/slices/authSlice"
-// import { useTranslation } from "@/lib/hooks/use-translation"  
+} from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Search,
+  Menu,
+  Bell,
+  MessageSquare,
+  User,
+  Settings,
+  LogOut,
+  Palette,
+  ShoppingCart,
+  Plus,
+} from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux";
+import { useToast } from "@/hooks/use-toast";
+import { logoutUser } from "@/lib/store/slices/authSlice";
+// import { useTranslation } from "@/lib/hooks/use-translation"
 
 export function Header() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const pathname = usePathname()
-  const router = useRouter()
-  const dispatch = useAppDispatch()
-  const { toast } = useToast()
-  const { user, isAuthenticated } = useAppSelector((state) => state.auth)
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { toast } = useToast();
+  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   // const { t } = useTranslation()
 
   const handleLogout = async () => {
     try {
-      await dispatch(logoutUser()).unwrap()
+      await dispatch(logoutUser()).unwrap();
       toast({
-        title: ("auth.logoutSuccess"),
+        title: "auth.logoutSuccess",
         variant: "default",
-      })
-      router.push("/")
+      });
+      router.push("/");
     } catch (error) {
       toast({
-        title: ("error"),
-        description: ("errors.somethingWentWrong"),
+        title: "error",
+        description: "errors.somethingWentWrong",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const navigationItems = [
-  {
-    href: "/",
-    label: "Home",
-  },
-  {
-    href: "/browse",
-    label: "Browse Art",
-  },
-  {
-    href: "/how-it-works",
-    label: "How It Works",
-  },
-  ]
+    {
+      href: "/",
+      label: "Home",
+    },
+    {
+      href: "/browse",
+      label: "Browse Art",
+    },
+    {
+      href: "/how-it-works",
+      label: "How It Works",
+    },
+  ];
 
   const userMenuItems = isAuthenticated
     ? [
         { href: "/dashboard", label: "Dashboard", icon: User },
         { href: "/dashboard/artworks", label: "My Artworks", icon: Palette },
-        { href: "/dashboard/purchases", label: "My Purchases", icon: ShoppingCart },
+        {
+          href: "/dashboard/purchases",
+          label: "My Purchases",
+          icon: ShoppingCart,
+        },
         { href: "/dashboard/messages", label: "Messages", icon: MessageSquare },
         { href: "/profile", label: "Profile", icon: Settings },
       ]
-    : []
+    : [];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -96,7 +118,9 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 className={`text-sm font-medium transition-colors hover:text-primary ${
-                  pathname === item.href ? "text-primary" : "text-muted-foreground"
+                  pathname === item.href
+                    ? "text-primary"
+                    : "text-muted-foreground"
                 }`}
               >
                 {item.label}
@@ -133,12 +157,12 @@ export function Header() {
             {isAuthenticated ? (
               <>
                 {/* Create Listing Button */}
-                <Button asChild size="sm" className="hidden sm:flex">
-                  <Link href="/create-listing">
+                <Link href="/create-listing">
+                  <Button size="sm" className="hidden sm:flex">
                     <Plus className="h-4 w-4 mr-2" />
                     Create Listing
-                  </Link>
-                </Button>
+                  </Button>
+                </Link>
 
                 {/* Notifications */}
                 {/* <DropdownMenu>
@@ -175,27 +199,42 @@ export function Header() {
                 </DropdownMenu> */}
 
                 {/* Messages */}
-                <Button asChild variant="ghost" size="icon" className="relative">
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="icon"
+                  className="relative"
+                >
                   <Link href="/dashboard/messages">
                     <MessageSquare className="h-5 w-5" />
-
                   </Link>
                 </Button>
 
                 {/* User Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Button
+                      variant="ghost"
+                      className="relative h-8 w-8 rounded-full"
+                    >
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback>{user?.username?.charAt(0) || user?.email?.charAt(0) || "U"}</AvatarFallback>
+                        <AvatarFallback>
+                          {user?.username?.charAt(0) ||
+                            user?.email?.charAt(0) ||
+                            "U"}
+                        </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user?.username || "User"}</p>
-                        <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                        <p className="text-sm font-medium leading-none">
+                          {user?.username || "User"}
+                        </p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {user?.email}
+                        </p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -247,7 +286,9 @@ export function Header() {
               <SheetContent side="right" className="w-80">
                 <SheetHeader>
                   <SheetTitle>Menu</SheetTitle>
-                  <SheetDescription>Navigate through the application</SheetDescription>
+                  <SheetDescription>
+                    Navigate through the application
+                  </SheetDescription>
                 </SheetHeader>
                 <div className="mt-6 space-y-4">
                   {/* Mobile Search */}
@@ -263,7 +304,9 @@ export function Header() {
                         key={item.href}
                         href={item.href}
                         className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-accent ${
-                          pathname === item.href ? "bg-accent text-accent-foreground" : "text-foreground"
+                          pathname === item.href
+                            ? "bg-accent text-accent-foreground"
+                            : "text-foreground"
                         }`}
                       >
                         {item.label}
@@ -289,7 +332,11 @@ export function Header() {
                       </div>
 
                       <div className="border-t pt-4">
-                        <Button onClick={handleLogout} variant="ghost" className="w-full justify-start">
+                        <Button
+                          onClick={handleLogout}
+                          variant="ghost"
+                          className="w-full justify-start"
+                        >
                           <LogOut className="mr-3 h-4 w-4" />
                           Logout
                         </Button>
@@ -303,5 +350,5 @@ export function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }
