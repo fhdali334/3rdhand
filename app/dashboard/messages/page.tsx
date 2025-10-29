@@ -1,28 +1,19 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { useState, useEffect, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  MessageCircle,
-  Send,
-  Search,
-  User,
-  AlertCircle,
-  Loader2,
-  RefreshCw,
-  MessageSquare,
-} from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { useState, useEffect, useMemo } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Skeleton } from "@/components/ui/skeleton"
+import { MessageCircle, Send, Search, User, AlertCircle, Loader2, RefreshCw, MessageSquare } from "lucide-react"
+import { formatDistanceToNow } from "date-fns"
 import {
   useConversations,
   useConversationMessages,
@@ -30,191 +21,153 @@ import {
   useSendMessage,
   useMarkAsRead,
   useSearchConversations,
-} from "@/lib/hooks/use-messages";
-import { AuthGuard } from "@/components/auth/auth-gaurd";
-import type { Conversation, Message } from "@/lib/api/messages";
-import { useSearchParams } from "next/navigation";
-import { artistsApi } from "@/lib/api/artists";
+} from "@/lib/hooks/use-messages"
+import { AuthGuard } from "@/components/auth/auth-gaurd"
+import type { Conversation, Message } from "@/lib/api/messages"
+import { useSearchParams } from "next/navigation"
+import { artistsApi } from "@/lib/api/artists"
 
 export default function MessagesPage() {
-  const [selectedConversation, setSelectedConversation] = useState<
-    string | null
-  >(null);
-  const [messageContent, setMessageContent] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null)
+  const [messageContent, setMessageContent] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
   const [artistFallback, setArtistFallback] = useState<{
-    username?: string;
-    avatar?: string;
-    role?: string;
-  } | null>(null);
+    username?: string
+    avatar?: string
+    role?: string
+  } | null>(null)
 
   // Debounce search input to reduce API calls
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("")
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 350);
-    return () => clearTimeout(t);
-  }, [searchQuery]);
+    const t = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 350)
+    return () => clearTimeout(t)
+  }, [searchQuery])
 
   const {
     data: conversationsData,
     isLoading: conversationsLoading,
     error: conversationsError,
     refetch: refetchConversations,
-  } = useConversations();
+  } = useConversations()
 
   const {
     data: messagesData,
     isLoading: messagesLoading,
     error: messagesError,
     refetch: refetchMessages,
-  } = useConversationMessages(selectedConversation);
+  } = useConversationMessages(selectedConversation)
 
-  const { data: unreadData, isLoading: unreadLoading } = useUnreadCount();
-  const { data: searchData, isLoading: searchLoading } =
-    useSearchConversations(debouncedSearch);
+  const { data: unreadData, isLoading: unreadLoading } = useUnreadCount()
+  const { data: searchData, isLoading: searchLoading } = useSearchConversations(debouncedSearch)
 
   // Mutations
-  const sendMessageMutation = useSendMessage();
-  const markAsReadMutation = useMarkAsRead();
+  const sendMessageMutation = useSendMessage()
+  const markAsReadMutation = useMarkAsRead()
 
   // Extract data
-  const conversations = conversationsData?.data?.conversations || [];
-  const messages = messagesData?.data?.messages || [];
-  const otherUser = messagesData?.data?.otherUser;
-  const unreadCount = unreadData?.data?.unreadCount || 0;
-  const searchResults = searchData?.data?.conversations || [];
+  const conversations = conversationsData?.data?.conversations || []
+  const messages = messagesData?.data?.messages || []
+  const otherUser = messagesData?.data?.otherUser
+  const unreadCount = unreadData?.data?.unreadCount || 0
+  const searchResults = searchData?.data?.conversations || []
 
-  const searchParams = useSearchParams();
-  const artistId = searchParams.get("artist");
-  const artworkTitle = searchParams.get("artwork");
-  const artistNameParam = searchParams.get("artistName");
+  const searchParams = useSearchParams()
+  const artistId = searchParams.get("artist")
+  const artworkTitle = searchParams.get("artwork")
+  const artistNameParam = searchParams.get("artistName")
 
-  // Ensure a conversation gets selected as soon as artist param is present
+  // Set selected conversation from URL params
   useEffect(() => {
     if (artistId && !selectedConversation) {
-      setSelectedConversation(artistId);
+      setSelectedConversation(artistId)
       if (artworkTitle && !messageContent) {
-        setMessageContent(
-          `Hi! I'm interested in your artwork "${decodeURIComponent(
-            artworkTitle
-          )}"`
-        );
+        setMessageContent(`Hi! I'm interested in your artwork "${decodeURIComponent(artworkTitle)}"`)
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [artistId]);
+  }, [artistId])
 
   // Prefetch artist profile as a fallback header if needed
   useEffect(() => {
-    let cancelled = false;
+    let cancelled = false
     async function run() {
-      if (!artistId) return;
+      if (!artistId) return
       try {
-        const res = await artistsApi.getArtistProfile(artistId);
-        const profile = res?.data?.data?.profile;
+        const res = await artistsApi.getArtistProfile(artistId)
+        const profile = res?.data?.data?.profile
         if (!cancelled && profile) {
           setArtistFallback({
             username: profile?.user?.username,
             avatar: (profile?.user as any)?.avatar || undefined,
             role: profile?.user?.role || "artist",
-          });
+          })
         } else if (!cancelled && artistNameParam) {
           setArtistFallback({
             username: decodeURIComponent(artistNameParam),
             role: "artist",
-          });
+          })
         }
       } catch {
         if (!cancelled && artistNameParam) {
           setArtistFallback({
             username: decodeURIComponent(artistNameParam),
             role: "artist",
-          });
+          })
         }
       }
     }
-    void run();
+    void run()
     return () => {
-      cancelled = true;
-    };
-  }, [artistId, artistNameParam]);
-
-  // Auto-select artist conversation if it exists in the list
-  useEffect(() => {
-    if (artistId && !conversationsLoading) {
-      if (conversations.length > 0) {
-        const artistConversation = conversations.find(
-          (conv: Conversation) =>
-            (conv.otherUser.id || conv.otherUser._id) === artistId
-        );
-        if (artistConversation) {
-          const userId =
-            artistConversation.otherUser.id || artistConversation.otherUser._id;
-          setSelectedConversation(userId);
-        }
-      }
+      cancelled = true
     }
-  }, [artistId, conversations, conversationsLoading]);
+  }, [artistId, artistNameParam])
 
   // Derive the selected conversation record to know its unreadCount
   const selectedConv = useMemo(
-    () =>
-      conversations.find(
-        (c: Conversation) =>
-          (c.otherUser.id || c.otherUser._id) === selectedConversation
-      ),
-    [conversations, selectedConversation]
-  );
+    () => conversations.find((c: Conversation) => (c.otherUser.id || c.otherUser._id) === selectedConversation),
+    [conversations, selectedConversation],
+  )
 
   // Mark as read when selected and messages loaded, but only if there are unread items
   useEffect(() => {
-    if (
-      selectedConversation &&
-      !messagesLoading &&
-      (selectedConv?.unreadCount ?? 0) > 0
-    ) {
-      markAsReadMutation.mutate(selectedConversation);
+    if (selectedConversation && !messagesLoading && (selectedConv?.unreadCount ?? 0) > 0) {
+      markAsReadMutation.mutate(selectedConversation)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedConversation, messagesLoading, selectedConv?.unreadCount]);
+  }, [selectedConversation, messagesLoading, selectedConv?.unreadCount])
 
   const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!messageContent.trim() || !selectedConversation) return;
+    e.preventDefault()
+    if (!messageContent.trim() || !selectedConversation) return
     try {
       await sendMessageMutation.mutateAsync({
         receiverId: selectedConversation,
         content: messageContent.trim(),
-      });
-      setMessageContent("");
-      // No refetch needed; we update caches optimistically.
+      })
+      setMessageContent("")
     } catch (error) {
-      console.error("Failed to send message:", error);
+      console.error("Failed to send message:", error)
     }
-  };
+  }
 
   const handleConversationSelect = (conversation: Conversation) => {
-    const userId = conversation.otherUser.id || conversation.otherUser._id;
+    const userId = conversation.otherUser.id || conversation.otherUser._id
     if (userId) {
-      setSelectedConversation(userId);
+      setSelectedConversation(userId)
     }
-  };
+  }
 
-  const displayConversations = debouncedSearch ? searchResults : conversations;
+  const displayConversations = debouncedSearch ? searchResults : conversations
 
   const isSameRoleError = (error: any) => {
-    return (
-      error?.response?.data?.message ===
-      "You cannot view messages with users of the same role"
-    );
-  };
+    return error?.response?.data?.message === "You cannot view messages with users of the same role"
+  }
 
   const getErrorMessage = (error: any) => {
     if (isSameRoleError(error)) {
-      return "You cannot message users with the same role. Artists can only message buyers and vice versa.";
+      return "You cannot message users with the same role. Artists can only message buyers and vice versa."
     }
-    return "Failed to load messages. Please try again.";
-  };
+    return "Failed to load messages. Please try again."
+  }
 
   return (
     <AuthGuard>
@@ -224,26 +177,18 @@ export default function MessagesPage() {
             <MessageCircle className="h-8 w-8 text-primary" />
             <div>
               <h1 className="text-3xl font-bold">Messages</h1>
-              <p className="text-muted-foreground">
-                {unreadLoading
-                  ? "Loading..."
-                  : `${unreadCount} unread messages`}
-              </p>
+              <p className="text-muted-foreground">{unreadLoading ? "Loading..." : `${unreadCount} unread messages`}</p>
             </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refetchConversations()}
-          >
+          <Button variant="outline" size="sm" onClick={() => refetchConversations()}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[600px] lg:h-[calc(100vh-250px)]">
           {/* Conversations List */}
-          <Card className="lg:col-span-1">
+          <Card className="lg:col-span-1 flex flex-col">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>Conversations</span>
@@ -259,8 +204,8 @@ export default function MessagesPage() {
                 />
               </div>
             </CardHeader>
-            <CardContent className="p-0">
-              <ScrollArea className="h-[500px]">
+            <CardContent className="p-0 flex-1 overflow-hidden">
+              <ScrollArea className="h-full">
                 {conversationsLoading || searchLoading ? (
                   <div className="space-y-4 p-4">
                     {[...Array(5)].map((_, i) => (
@@ -289,25 +234,18 @@ export default function MessagesPage() {
                     </AlertDescription>
                   </Alert>
                 ) : displayConversations.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-8 text-muted-foreground px-4">
                     <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>
-                      {debouncedSearch
-                        ? "No conversations found"
-                        : "No conversations yet"}
-                    </p>
+                    <p>{debouncedSearch ? "No conversations found" : "No conversations yet"}</p>
                     <p className="text-sm">
-                      {debouncedSearch
-                        ? "Try a different search term"
-                        : "Start a conversation with an artist"}
+                      {debouncedSearch ? "Try a different search term" : "Start a conversation with an artist"}
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-1">
                     {displayConversations.map((conversation: Conversation) => {
-                      const userId =
-                        conversation.otherUser.id || conversation.otherUser._id;
-                      const isSelected = selectedConversation === userId;
+                      const userId = conversation.otherUser.id || conversation.otherUser._id
+                      const isSelected = selectedConversation === userId
 
                       return (
                         <div
@@ -317,60 +255,43 @@ export default function MessagesPage() {
                           }`}
                           onClick={() => handleConversationSelect(conversation)}
                         >
-                          <Avatar className="h-10 w-10">
+                          <Avatar className="h-10 w-10 flex-shrink-0">
                             <AvatarImage
-                              src={
-                                conversation.otherUser.avatar ||
-                                "/placeholder.svg"
-                              }
+                              src={conversation.otherUser.avatar || "/placeholder.svg" || "/placeholder.svg"}
                               alt={conversation.otherUser.username}
                             />
                             <AvatarFallback>
-                              {conversation.otherUser.username
-                                ?.charAt(0)
-                                ?.toUpperCase() || <User className="h-4 w-4" />}
+                              {conversation.otherUser.username?.charAt(0)?.toUpperCase() || (
+                                <User className="h-4 w-4" />
+                              )}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
-                              <p className="font-medium text-sm truncate">
-                                {conversation.otherUser.username}
-                              </p>
-                              <div className="flex items-center gap-2">
+                              <p className="font-medium text-sm truncate">{conversation.otherUser.username}</p>
+                              <div className="flex items-center gap-2 flex-shrink-0">
                                 {conversation.unreadCount > 0 && (
-                                  <Badge
-                                    variant="destructive"
-                                    className="text-xs"
-                                  >
+                                  <Badge variant="destructive" className="text-xs">
                                     {conversation.unreadCount}
                                   </Badge>
                                 )}
-                                <span className="text-xs text-muted-foreground">
-                                  {formatDistanceToNow(
-                                    new Date(
-                                      conversation.lastMessage.timestamp
-                                    ),
-                                    {
-                                      addSuffix: true,
-                                    }
-                                  )}
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                  {formatDistanceToNow(new Date(conversation.lastMessage.timestamp), {
+                                    addSuffix: true,
+                                  })}
                                 </span>
                               </div>
                             </div>
-                            <p className="text-sm text-muted-foreground truncate">
-                              {conversation.lastMessage.content}
-                            </p>
+                            <p className="text-sm text-muted-foreground truncate">{conversation.lastMessage.content}</p>
                             {conversation.otherUser.isOnline && (
                               <div className="flex items-center gap-1 mt-1">
                                 <div className="h-2 w-2 bg-green-500 rounded-full" />
-                                <span className="text-xs text-green-600">
-                                  Online
-                                </span>
+                                <span className="text-xs text-green-600">Online</span>
                               </div>
                             )}
                           </div>
                         </div>
-                      );
+                      )
                     })}
                   </div>
                 )}
@@ -383,31 +304,23 @@ export default function MessagesPage() {
             {selectedConversation ? (
               <>
                 {/* Chat Header */}
-                <CardHeader className="border-b">
+                <CardHeader className="border-b flex-shrink-0">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
                       <AvatarImage
-                        src={
-                          otherUser?.avatar ||
-                          artistFallback?.avatar ||
-                          "/placeholder.svg"
-                        }
+                        src={otherUser?.avatar || artistFallback?.avatar || "/placeholder.svg" || "/placeholder.svg"}
                         alt={otherUser?.username || artistFallback?.username}
                       />
                       <AvatarFallback>
                         {otherUser?.username?.charAt(0)?.toUpperCase() ||
-                          artistFallback?.username
-                            ?.charAt(0)
-                            ?.toUpperCase() || <User className="h-4 w-4" />}
+                          artistFallback?.username?.charAt(0)?.toUpperCase() || <User className="h-4 w-4" />}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <h3 className="font-semibold">
                         {messages.length > 0 && messages[0]?.receiver?.username
                           ? messages[0].receiver.username
-                          : otherUser?.username ||
-                            artistFallback?.username ||
-                            "Unknown User"}
+                          : otherUser?.username || artistFallback?.username || "Unknown User"}
                       </h3>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-xs">
@@ -416,9 +329,7 @@ export default function MessagesPage() {
                         {otherUser?.isOnline && (
                           <div className="flex items-center gap-1">
                             <div className="h-2 w-2 bg-green-500 rounded-full" />
-                            <span className="text-xs text-green-600">
-                              Online
-                            </span>
+                            <span className="text-xs text-green-600">Online</span>
                           </div>
                         )}
                       </div>
@@ -427,150 +338,117 @@ export default function MessagesPage() {
                 </CardHeader>
 
                 {/* Messages */}
-                <CardContent className="flex-1 p-0">
-                  <ScrollArea className="h-[400px] p-4">
-                    {messagesLoading ? (
-                      <div className="space-y-4">
-                        {[...Array(5)].map((_, i) => (
-                          <div
-                            key={i}
-                            className={`flex ${
-                              i % 2 === 0 ? "justify-start" : "justify-end"
-                            }`}
-                          >
-                            <div className="flex items-start gap-2 max-w-xs">
-                              {i % 2 === 0 && (
-                                <Skeleton className="h-8 w-8 rounded-full" />
-                              )}
-                              <div className="space-y-2">
-                                <Skeleton className="h-4 w-32" />
-                                <Skeleton className="h-16 w-48" />
+                <CardContent className="flex-1 p-0 overflow-hidden flex flex-col">
+                  <ScrollArea className="flex-1">
+                    <div className="p-4">
+                      {messagesLoading ? (
+                        <div className="space-y-4">
+                          {[...Array(5)].map((_, i) => (
+                            <div key={i} className={`flex ${i % 2 === 0 ? "justify-start" : "justify-end"}`}>
+                              <div className="flex items-start gap-2 max-w-xs">
+                                {i % 2 === 0 && <Skeleton className="h-8 w-8 rounded-full" />}
+                                <div className="space-y-2">
+                                  <Skeleton className="h-4 w-32" />
+                                  <Skeleton className="h-16 w-48" />
+                                </div>
+                                {i % 2 === 1 && <Skeleton className="h-8 w-8 rounded-full" />}
                               </div>
-                              {i % 2 === 1 && (
-                                <Skeleton className="h-8 w-8 rounded-full" />
-                              )}
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : messagesError ? (
-                      <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>
-                          {getErrorMessage(messagesError)}
-                          {!isSameRoleError(messagesError) && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="ml-2 bg-transparent"
-                              onClick={() => refetchMessages()}
-                            >
-                              Retry
-                            </Button>
-                          )}
-                        </AlertDescription>
-                      </Alert>
-                    ) : messages.length === 0 ? (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>No messages yet</p>
-                        <p className="text-sm">Start the conversation!</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {messages.map((message: Message) => (
-                          <div
-                            key={message.id}
-                            className={`flex ${
-                              message.isSentByMe
-                                ? "justify-end"
-                                : "justify-start"
-                            }`}
-                          >
+                          ))}
+                        </div>
+                      ) : messagesError ? (
+                        <Alert variant="destructive">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>
+                            {getErrorMessage(messagesError)}
+                            {!isSameRoleError(messagesError) && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="ml-2 bg-transparent"
+                                onClick={() => refetchMessages()}
+                              >
+                                Retry
+                              </Button>
+                            )}
+                          </AlertDescription>
+                        </Alert>
+                      ) : messages.length === 0 ? (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p>No messages yet</p>
+                          <p className="text-sm">Start the conversation!</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {messages.map((message: Message) => (
                             <div
-                              className={`flex items-start gap-2 max-w-xs lg:max-w-md ${
-                                message.isSentByMe
-                                  ? "flex-row-reverse"
-                                  : "flex-row"
-                              }`}
+                              key={message.id}
+                              className={`flex ${message.isSentByMe ? "justify-end" : "justify-start"}`}
                             >
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage
-                                  src={
-                                    message.isSentByMe
-                                      ? message.sender.avatar ||
-                                        "/placeholder.svg"
-                                      : message.receiver.avatar ||
-                                        "/placeholder.svg"
-                                  }
-                                  alt={
-                                    message.isSentByMe
-                                      ? message.sender.username
-                                      : message.receiver.username
-                                  }
-                                />
-                                <AvatarFallback>
-                                  {message.isSentByMe
-                                    ? message.sender.username
-                                        ?.charAt(0)
-                                        ?.toUpperCase()
-                                    : message.receiver.username
-                                        ?.charAt(0)
-                                        ?.toUpperCase() || (
-                                        <User className="h-4 w-4" />
-                                      )}
-                                </AvatarFallback>
-                              </Avatar>
                               <div
-                                className={`rounded-lg px-3 py-2 ${
-                                  message.isSentByMe
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-muted text-muted-foreground"
+                                className={`flex items-start gap-2 max-w-xs lg:max-w-md ${
+                                  message.isSentByMe ? "flex-row-reverse" : "flex-row"
                                 }`}
                               >
-                                <p className="text-sm">{message.content}</p>
-                                <p
-                                  className={`text-xs mt-1 ${
+                                <Avatar className="h-8 w-8 flex-shrink-0">
+                                  <AvatarImage
+                                    src={
+                                      message.isSentByMe
+                                        ? message.sender.avatar || "/placeholder.svg"
+                                        : message.receiver.avatar || "/placeholder.svg"
+                                    }
+                                    alt={message.isSentByMe ? message.sender.username : message.receiver.username}
+                                  />
+                                  <AvatarFallback>
+                                    {message.isSentByMe
+                                      ? message.sender.username?.charAt(0)?.toUpperCase()
+                                      : message.receiver.username?.charAt(0)?.toUpperCase() || (
+                                          <User className="h-4 w-4" />
+                                        )}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div
+                                  className={`rounded-lg px-3 py-2 ${
                                     message.isSentByMe
-                                      ? "text-primary-foreground/70"
-                                      : "text-muted-foreground/70"
+                                      ? "bg-primary text-primary-foreground"
+                                      : "bg-muted text-muted-foreground"
                                   }`}
                                 >
-                                  {formatDistanceToNow(
-                                    new Date(message.timestamp),
-                                    { addSuffix: true }
-                                  )}
-                                </p>
+                                  <p className="text-sm break-words">{message.content}</p>
+                                  <p
+                                    className={`text-xs mt-1 ${
+                                      message.isSentByMe ? "text-primary-foreground/70" : "text-muted-foreground/70"
+                                    }`}
+                                  >
+                                    {formatDistanceToNow(new Date(message.timestamp), { addSuffix: true })}
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </ScrollArea>
                 </CardContent>
 
                 <Separator />
 
                 {/* Message Input */}
-                <div className="p-4">
+                <div className="p-4 flex-shrink-0 bg-background">
                   <form onSubmit={handleSendMessage} className="flex gap-2">
                     <Input
                       placeholder="Type your message..."
                       value={messageContent}
                       onChange={(e) => setMessageContent(e.target.value)}
-                      disabled={
-                        sendMessageMutation.isPending ||
-                        isSameRoleError(messagesError)
-                      }
+                      disabled={sendMessageMutation.isPending || isSameRoleError(messagesError)}
                       className="flex-1"
                     />
                     <Button
                       type="submit"
                       disabled={
-                        !messageContent.trim() ||
-                        sendMessageMutation.isPending ||
-                        isSameRoleError(messagesError)
+                        !messageContent.trim() || sendMessageMutation.isPending || isSameRoleError(messagesError)
                       }
                       size="sm"
                     >
@@ -583,8 +461,7 @@ export default function MessagesPage() {
                   </form>
                   {isSameRoleError(messagesError) && (
                     <p className="text-sm text-muted-foreground mt-2">
-                      💡 Tip: You can only message users with different roles
-                      (artists ↔ buyers)
+                      💡 Tip: You can only message users with different roles (artists ↔ buyers)
                     </p>
                   )}
                 </div>
@@ -593,9 +470,7 @@ export default function MessagesPage() {
               <div className="flex-1 flex items-center justify-center text-muted-foreground">
                 <div className="text-center">
                   <MessageCircle className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                  <h3 className="text-lg font-semibold mb-2">
-                    Select a conversation
-                  </h3>
+                  <h3 className="text-lg font-semibold mb-2">Select a conversation</h3>
                   <p>Choose a conversation from the list to start messaging</p>
                 </div>
               </div>
@@ -604,5 +479,5 @@ export default function MessagesPage() {
         </div>
       </div>
     </AuthGuard>
-  );
+  )
 }

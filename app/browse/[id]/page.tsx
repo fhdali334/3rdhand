@@ -22,7 +22,6 @@ import {
   Heart,
   Share2,
   MessageCircle,
-  ShoppingCart,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
@@ -355,9 +354,8 @@ export default function ArtworkDetailPage() {
       toast({ title: "Error", description: "Owner information not available", variant: "destructive" })
       return
     }
-    // Route to messages with current owner details
     const messageUrl = `/dashboard/messages?artist=${encodeURIComponent(
-      artwork.currentOwner.username,
+      artwork.currentOwner._id,
     )}&artwork=${encodeURIComponent(artwork?.title || "")}&artistName=${encodeURIComponent(
       artwork.currentOwner?.username || "",
     )}`
@@ -1224,6 +1222,7 @@ export default function ArtworkDetailPage() {
               src={
                 artworkImages[fullScreenImageIndex] ||
                 "/placeholder.svg?height=800&width=600&query=artwork-fullscreen" ||
+                "/placeholder.svg" ||
                 "/placeholder.svg"
               }
               alt={`${artwork?.title} - Full Screen`}

@@ -4,13 +4,22 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { AlertCircle, DollarSign, Eye, FileText, Heart, MessageSquare, Package, PlusCircle, RefreshCw, TrendingUp } from 'lucide-react'
+import {
+  AlertCircle,
+  DollarSign,
+  Eye,
+  FileText,
+  Heart,
+  MessageSquare,
+  Package,
+  PlusCircle,
+  RefreshCw,
+  TrendingUp,
+} from "lucide-react"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux"
 import {
   fetchMyArtworks,
@@ -154,7 +163,6 @@ function DashboardContent() {
 
   return (
     <>
-       
       <div className="container py-8">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 sm:mb-8">
           <div>
@@ -167,13 +175,11 @@ function DashboardContent() {
           </div>
           {user.role === "artist" && (
             <Link href="/create-listing">
-            <Button asChild className="mt-4 lg:mt-0">
-              
+              <Button className="mt-4 lg:mt-0">
                 <PlusCircle className="h-4 w-4 mr-2" />
                 Create Listing
-             
-            </Button>
-             </Link>
+              </Button>
+            </Link>
           )}
         </div>
 
@@ -412,12 +418,10 @@ function DashboardContent() {
                       <h3 className="text-lg font-medium mb-2">No artworks yet</h3>
                       <p className="text-muted-foreground mb-4">Start by creating your first artwork listing.</p>
                       <Link href="/create-listing">
-                      <Button asChild>
-                        
+                        <Button>
                           <PlusCircle className="h-4 w-4 mr-2" />
                           Create Listing
-                        
-                      </Button>
+                        </Button>
                       </Link>
                     </div>
                   )}

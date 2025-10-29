@@ -21,7 +21,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAppSelector } from "@/lib/hooks/redux"
 import { useToast } from "@/hooks/use-toast"
 import { AuthGuard } from "@/components/auth/auth-gaurd"
-import { Search, Edit, Trash2, Plus, Filter, Loader2, AlertCircle, RefreshCw, Calendar, DollarSign, ImageIcon, Grid3X3, List, User, ShoppingBag, Palette } from 'lucide-react'
+import {
+  Search,
+  Edit,
+  Trash2,
+  Plus,
+  Filter,
+  Loader2,
+  AlertCircle,
+  RefreshCw,
+  Calendar,
+  DollarSign,
+  ImageIcon,
+  Grid3X3,
+  List,
+  User,
+  ShoppingBag,
+  Palette,
+} from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { artworkApi } from "@/lib/api/artwork"
@@ -237,12 +254,10 @@ function MyArtworksContent() {
             <p className="text-muted-foreground">Manage your artwork collection</p>
           </div>
           <Link href="/create-listing">
-          <Button asChild className="w-full sm:w-auto">
-            
+            <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Add New Artwork
-            
-          </Button>
+            </Button>
           </Link>
         </div>
 
@@ -398,13 +413,11 @@ function MyArtworksContent() {
                     </p>
                     {getCurrentArtworks().length === 0 && activeTab === "created" && (
                       <Link href="/create-listing">
-                      <Button asChild>
-                        
+                        <Button>
                           <Plus className="mr-2 h-4 w-4" />
                           Create Your First Artwork
-                       
-                      </Button>
-                       </Link>
+                        </Button>
+                      </Link>
                     )}
                   </div>
                 ) : viewMode === "grid" ? (
@@ -414,7 +427,10 @@ function MyArtworksContent() {
                       const img = (artwork?.images && artwork.images[0]) || "/abstract-colorful-artwork.png"
                       const price = Number(artwork?.price || 0)
                       return (
-                        <Card key={artwork._id || artwork.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                        <Card
+                          key={artwork._id || artwork.id}
+                          className="overflow-hidden hover:shadow-lg transition-shadow"
+                        >
                           <div className="relative aspect-[3/4] bg-gray-100">
                             <Image src={img || "/placeholder.svg"} alt={artwork.title} fill className="object-cover" />
                             <div className="absolute top-2 right-2">
@@ -450,16 +466,18 @@ function MyArtworksContent() {
                               <p className="text-xs text-red-600 mb-3 line-clamp-2">{artwork.rejectionReason}</p>
                             )}
                             <div className="flex gap-2">
-                              <Button variant="outline" size="sm" className="flex-1 bg-transparent" asChild>
-                                <Link href={`/browse/${artwork._id || artwork.id}`}>View Details</Link>
-                              </Button>
+                              <Link href={`/browse/${artwork._id || artwork.id}`}>
+                                <Button variant="outline" size="sm" className="flex-1 bg-transparent">
+                                  View Details
+                                </Button>
+                              </Link>
                               {activeTab === "created" && (
                                 <>
-                                  <Button variant="outline" size="sm" asChild>
-                                    <Link href={`/create-listing?edit=${artwork._id || artwork.id}`}>
+                                  <Link href={`/create-listing?edit=${artwork._id || artwork.id}`}>
+                                    <Button variant="outline" size="sm">
                                       <Edit className="h-3 w-3" />
-                                    </Link>
-                                  </Button>
+                                    </Button>
+                                  </Link>
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -537,8 +555,7 @@ function MyArtworksContent() {
                               </TableCell>
                               <TableCell className="hidden md:table-cell">
                                 <div className="flex items-center">
-                                  <DollarSign className="h-4 w-4 text-muted-foreground mr-1" />€
-                                  {price.toLocaleString()}
+                                  <DollarSign className="h-4 w-4 text-muted-foreground mr-1" />€{price.toLocaleString()}
                                 </div>
                               </TableCell>
                               <TableCell className="hidden lg:table-cell">
@@ -552,16 +569,18 @@ function MyArtworksContent() {
                               </TableCell>
                               <TableCell className="text-right">
                                 <div className="flex items-center justify-end space-x-1 sm:space-x-2">
-                                  <Button variant="ghost" size="sm" asChild>
-                                    <Link href={`/browse/${artwork._id || artwork.id}`}>View</Link>
-                                  </Button>
+                                  <Link href={`/browse/${artwork._id || artwork.id}`}>
+                                    <Button variant="ghost" size="sm">
+                                      View
+                                    </Button>
+                                  </Link>
                                   {activeTab === "created" && (
                                     <>
-                                      <Button variant="ghost" size="sm" asChild>
-                                        <Link href={`/create-listing?edit=${artwork._id || artwork.id}`}>
+                                      <Link href={`/create-listing?edit=${artwork._id || artwork.id}`}>
+                                        <Button variant="ghost" size="sm">
                                           <Edit className="h-4 w-4" />
-                                        </Link>
-                                      </Button>
+                                        </Button>
+                                      </Link>
                                       <Button
                                         variant="ghost"
                                         size="sm"
