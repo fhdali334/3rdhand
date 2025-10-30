@@ -104,6 +104,10 @@ interface ArtworkDetail {
       canLike: boolean
       canFollow: boolean
     }
+  messagingContext?: {
+  canMessage: boolean
+  recipientType: 'artist' | 'owner' | null
+  }
     traceabilityContext?: {
       totalTransfers: number
       hasHistory: boolean
@@ -172,7 +176,9 @@ export default function ArtworkDetailPage() {
 
   // Derivatives
   const artworkImages = artwork?.images || []
-  const artistInfo = artwork?.artist
+  const artistInfo = artwork?.artist;
+  const canMessage = artwork?.messagingContext?.canMessage || false
+const recipientType = artwork?.messagingContext?.recipientType || 'artist'
   const isOwner = artwork?.currentOwner?._id === user?._id
   const canBuy = artwork?.ownershipContext ? (artwork.ownershipContext as any).canPurchase !== false : true
   const purchaseType = (artwork?.ownershipContext as any)?.purchaseType || "from_artist"
@@ -696,7 +702,7 @@ export default function ArtworkDetailPage() {
               )} */}
 
               {/* Added separate button to message current owner when artwork is sold and owner is different from artist */}
-                {!isOwner && (
+                {!canMessage && (
                 <Button variant="outline" className="flex-1 bg-transparent" onClick={handleContactOwner}>
                   <MessageCircle className="h-5 w-5 mr-2" />
                   Message {isSold ? "Owner" : "Artist"}
@@ -1056,7 +1062,7 @@ export default function ArtworkDetailPage() {
 
                   {/* Contact Owner Button */}
                   <div className="mt-4 flex flex-wrap items-center gap-3">
-                    {!isOwner && (
+                    {canMessage && (
                       <Button variant="outline" onClick={handleContactOwner}>
                         <MessageCircle className="h-4 w-4 mr-2" />
                         Message Owner
