@@ -696,7 +696,7 @@ export default function ArtworkDetailPage() {
               )} */}
 
               {/* Added separate button to message current owner when artwork is sold and owner is different from artist */}
-              {!isOwner && artwork.currentOwner.username !== artwork.artist.username && (
+              {!isOwner && (
                 <Button variant="outline" className="flex-1 bg-transparent" onClick={handleContactOwner}>
                   <MessageCircle className="h-5 w-5 mr-2" />
                   Message Owner
