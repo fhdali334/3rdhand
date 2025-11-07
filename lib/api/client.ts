@@ -1,7 +1,7 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from "axios"
 import type { ApiResponse } from "@/lib/types/auth"
 
-const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.3rdhand.be"
+const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api-v2.3rdhand.be"
 
 console.log("🔗 API Base URL:", baseURL)
 

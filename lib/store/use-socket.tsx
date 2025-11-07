@@ -66,7 +66,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
     // Initialize socket connection only once
     if (!socketRef.current) {
-      socketRef.current = io(process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.3rdhand.be", {
+      socketRef.current = io(process.env.NEXT_PUBLIC_API_BASE_URL || "https://api-v2.3rdhand.be", {
         auth: {
           token: user.token,
         },
